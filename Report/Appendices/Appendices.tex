@@ -1,0 +1,195 @@
+\begin{appendices}
+\addcontentsline{toc}{section}{Appendices}
+
+\section{Results \& Outcomes}
+\label{app: Results}
+\subsection{Feature Selection}
+{  
+\setlength{\LTleft}{-5pt}
+\setlength{\LTright}{\fill}
+\setlength{\LTpre}{-1pt}
+\setlength{\LTpost}{-5pt}
+\renewcommand{\arraystretch}{0.75}
+\hyphenpenalty=50
+\begin{longtable}{| 
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.10\textwidth} | 
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.13\textwidth} | 
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.14\textwidth} | 
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.32\textwidth} | 
+    >{\centering\arraybackslash}p{0.11\textwidth} | 
+    >{\centering\arraybackslash}p{0.07\textwidth} |}
+\caption{Feature engineering overview with Boruta status.\label{tab:features_full}}\\
+\hline
+\textbf{Feature} & 
+\textbf{Category} & 
+\textbf{Implement}\newline \textbf{-ation} & 
+\textbf{Justification} & 
+\textbf{Balanced Entropy} & 
+\textbf{Max EV} \\ 
+\hline
+\endfirsthead
+
+\hline
+\textbf{Feature} & 
+\textbf{Category} & 
+\textbf{Implement}\newline \textbf{-ation} & 
+\textbf{Justification} & 
+\textbf{Balanced Entropy} & 
+\textbf{Max EV} \\ 
+\hline
+\endhead
+
+\hline
+\multicolumn{6}{r}{Continued on next page} \\
+\endfoot
+
+\hline
+\endlastfoot
+
+    RSI & Momentum & \mbox{talib.RSI} & Overbought ($\geq70$) / oversold ($\leq30$) & \checkmark & \checkmark \\
+    \hline
+    MACD\_\newline Line & Trend/\newline Momentum & \mbox{talib.MACD} & Trend direction and momentum convergence & \checkmark & \checkmark \\
+    \hline
+    MACD\_\newline Signal & Trend/\newline Momentum & \mbox{talib.MACD} & Crossover signals entry/exit & \checkmark & \checkmark \\
+    \hline
+    MACD\_\newline Histogram & Trend/\newline Momentum & \mbox{talib.MACD} & Momentum acceleration/deceleration & \checkmark & \checkmark \\
+    \hline
+    BB\_Upper & Volatility & \mbox{talib.BBANDS} & Upper envelope; breakout/overbought & \checkmark & \checkmark \\
+    \hline
+    BB\_Middle & Trend & \mbox{talib.BBANDS} & Baseline trend reference & \checkmark & \checkmark \\
+    \hline
+    BB\_Lower & Volatility & \mbox{talib.BBANDS} & Lower envelope; oversold signal & \checkmark & \checkmark \\
+    \hline
+    BB\_Width & Volatility & \mbox{Pandas} & Normalised volatility; squeeze precedes breakout & \checkmark & \checkmark \\
+    \hline
+    SMA\_7 & Trend & \mbox{pandas rolling} & Short-horizon trend (1 week) & \checkmark & \checkmark \\
+    \hline
+    EMA\_7 & Trend & \mbox{pandas ewm} & Recency-weighted short-term trend & \checkmark & \checkmark \\
+    \hline
+    SMA\_14 & Trend & \mbox{pandas rolling} & Medium-horizon trend (2 weeks) & \checkmark & \checkmark \\
+    \hline
+    EMA\_14 & Trend & \mbox{pandas ewm} & Recency-weighted 2-week trend & \checkmark & \checkmark \\
+    \hline
+    SMA\_30 & Trend & \mbox{pandas rolling} & Monthly trend baseline & \checkmark & \checkmark \\
+    \hline
+    EMA\_30 & Trend & \mbox{pandas ewm} & Recency-weighted monthly trend & \checkmark & \checkmark \\
+    \hline
+    SMA\_50 & Trend & \mbox{pandas rolling} & Medium-term; institutional reference & \checkmark & \checkmark \\
+    \hline
+    EMA\_50 & Trend & \mbox{pandas ewm} & Recency-weighted medium-term trend & \checkmark & \checkmark \\
+    \hline
+    SMA\_200 & Trend & \mbox{pandas rolling} & Long-term bull/bear threshold & \checkmark & \checkmark \\
+    \hline
+    EMA\_200 & Trend & \mbox{pandas ewm} & Recency-weighted long-term trend & \checkmark & \checkmark \\
+    \hline
+    Volatility \newline \_7day & Volatility & \mbox{pandas rolling} & Short-horizon realised volatility & \checkmark & \checkmark \\
+    \hline
+    Volatility \newline \_30day & Volatility & \mbox{pandas rolling} & Medium-horizon realised volatility & \checkmark & \checkmark \\
+    \hline
+    Volatility \newline \_EWMA & Volatility & \mbox{pandas ewm} & Adaptive volatility; triple barrier scaling factor & \checkmark & \checkmark \\
+    \hline
+    Volume \newline\_SMA\_7 & Volume & \mbox{pandas rolling} & Short-term volume trend baseline & \checkmark & \checkmark \\
+    \hline
+    Volume \newline\_SMA\_30 & Volume & \mbox{pandas rolling} & Monthly volume trend baseline & \checkmark & \checkmark \\
+    \hline
+    ROC \newline \_7day & Momentum & \mbox{Pandas} & Normalised 1-week momentum & \checkmark & \checkmark \\
+    \hline
+    Momentum \newline \_14day & Momentum & \mbox{Pandas} & 2-week absolute price momentum & \checkmark & \checkmark \\
+    \hline
+    ROC \newline \_14day & Momentum & \mbox{Pandas} & Normalised 2-week momentum & \checkmark & \checkmark \\
+    \hline
+    Momentum \newline \_30day & Momentum & \mbox{Pandas} & Monthly absolute price momentum & \checkmark & \checkmark \\
+    \hline
+    ROC \newline \_30day & Momentum & \mbox{Pandas} & Normalised monthly momentum & \checkmark & \checkmark \\
+    \hline
+    ADX & Trend Strength & \mbox{talib.ADX} & Trend strength 0--100; direction-agnostic & \checkmark & \checkmark \\
+    \hline
+    ADXR & Trend Strength & \mbox{talib.ADXR} & Smoothed ADX & \checkmark & \checkmark \\
+    \hline
+    PLUS\_DI & Trend Direction & \mbox{talib.PLUS\_DI} & Upward directional pressure & \checkmark & \checkmark \\
+    \hline
+    MINUS\_DI & Trend Direction & talib.\newline MINUS\_DI & Downward directional pressure & \checkmark & \checkmark \\
+    \hline
+    \mbox{AROON}\newline -OSC & Momentum & talib.\newline AROONOSC & Positive = uptrend; negative = downtrend & \checkmark & \checkmark \\
+    \hline
+    ATR & Volatility & \mbox{talib.ATR} & Absolute volatility; barrier and position sizing & \checkmark & \checkmark \\
+    \hline
+    NATR & Volatility & talib.NATR & Normalised ATR; cross-asset comparable & \checkmark & \checkmark \\
+    \hline
+    STOCHRSI & Momentum & talib.\newline STOCHRSI & More sensitive than RSI alone & $\times$ & \checkmark \\
+    \hline
+    WILLR & Momentum & \mbox{talib.WILLR} & Momentum extremes within recent range & \checkmark & \checkmark \\
+    \hline
+    OBV & Volume & \mbox{talib.OBV} & Volume flow in relation to price & \checkmark & \checkmark \\
+    \hline
+    STOCH\_K & Momentum & \mbox{talib.STOCH} & Compare latest closing price with trading range & \checkmark & \checkmark \\
+    \hline
+    STOCH\_D & Momentum & \mbox{talib.STOCH} & Smoothed STOCH K & \checkmark & \checkmark \\
+    \hline
+    MFI & Volume\newline /Momentum & \mbox{talib.MFI} & Integrates price and volume; detects divergences & \checkmark & \checkmark \\
+    \hline
+    AD & Volume & \mbox{talib.AD} & Accumulation/distribution pressure & \checkmark & \checkmark \\
+    \hline
+    ADOSC & Volume & \mbox{talib.ADOSC} & Volume momentum oscillator & \checkmark & \checkmark \\
+    \hline
+    CCI & Momentum & \mbox{talib.CCI} & Cyclical extremes; $>$100 overbought & \checkmark & \checkmark \\
+    \hline
+    SAR & Trend & \mbox{talib.SAR} & Trend reversal signal & \checkmark & \checkmark \\
+    \hline
+    KAMA & Trend & \mbox{talib.KAMA} & Adapts to noise, slow when stable, fast when noisy & \checkmark & \checkmark \\
+    \hline
+    MAMA & Trend & \mbox{talib.MAMA} & Adapts to stage of market cycle & \checkmark & \checkmark \\
+    \hline
+    FAMA & Trend & \mbox{talib.MAMA} & Crossover with MAMA signals trend & \checkmark & \checkmark \\
+    \hline
+    ULTOSC & Momentum & \mbox{talib.ULTOSC} & Multi-timeframe; reduces false divergence & \checkmark & \checkmark \\
+    \hline
+    CMO & Momentum & \mbox{talib.CMO} & Symmetric RSI; sensitive to trend changes & \checkmark & \checkmark \\
+    \hline
+    PPO & Trend\newline /Momentum & \mbox{talib.PPO} & Normalised MACD; cross-asset comparison & \checkmark & \checkmark \\
+    \hline
+    TRIX & Momentum & \mbox{talib.TRIX} & Noise filter via triple smoothing & \checkmark & \checkmark \\
+    \hline
+    LINEAR\newline-REG\_\newline SLOPE & Trend & talib.\newline LINEARREG\_\newline SLOPE & Trend gradient; positive = uptrend strength & \checkmark & \checkmark \\
+    \hline
+    AdrActCnt & On-chain & Coin \newline Metrics API & Network activity proxy & \checkmark & \checkmark \\
+    \hline
+    AdrBalCnt & On-chain & Coin \newline Metrics API & Holder base size & \checkmark & \checkmark \\
+    \hline
+    CapMVRV\newline Cur & On-chain & Coin \newline Metrics API & Over/under-valuation signal & \checkmark & \checkmark \\
+    \hline
+    CapMrkt\newline CurUSD & On-chain & Coin \newline Metrics API & Market size baseline & \checkmark & \checkmark \\
+    \hline
+    FeeTotNtv & On-chain & Coin \newline Metrics API & Network congestion proxy & \checkmark & \checkmark \\
+    \hline
+    HashRate & On-chain & Coin \newline Metrics API & Mining difficulty and security & \checkmark & \checkmark \\
+    \hline
+    ROI1yr & On-chain & Coin \newline Metrics API & 1-year return; trend regime signal & \checkmark & \checkmark \\
+    \hline
+    SplyCur & On-chain & Coin \newline Metrics API & Supply dynamics; halving effects & \checkmark & \checkmark \\
+    \hline
+    SplyExNtv & On-chain & Coin \newline Metrics API & Sell pressure proxy & \checkmark & \checkmark \\
+    \hline
+    Daily \newline \_Return & Price & \mbox{Pandas} & Raw price change; volatility input & $\times$ & $\times$ \\
+    \hline
+    Log \newline \_Return & Price & Numpy & Near-normally distributed; preferred in risk models & $\times$ & $\times$ \\
+    \hline
+    TRANGE & Volatility & talib.\newline TRANGE & Single-period true range; raw volatility & $\checkmark$ & $\times$ \\
+    \hline
+    FlowIn \newline ExNtv & On-chain & Coin \newline Metrics API & Buy pressure proxy & $\times$ & $\times$ \\
+    \hline
+    FlowOut\newline ExNtv & On-chain & Coin \newline Metrics API & Accumulation proxy & $\checkmark$ & $\times$ \\
+    \hline
+    TxCnt & On-chain & Coin \newline Metrics API & Network usage baseline & $\checkmark$ & $\times$ \\
+    \hline
+    TxTfrCnt & On-chain & Coin \newline Metrics API & Transfer activity metric & $\checkmark$ & $\times$ \\
+    \hline
+    Volume\newline \_Daily\newline Change & Volume & \mbox{Pandas} & Sudden spikes signal institutional activity & $\times$ & $\times$ \\
+    \hline
+    Momentum \newline \_7day & Momentum & \mbox{Pandas} & 1-week absolute price momentum & $\checkmark$ & $\times$ \\
+    \hline
+\end{longtable}
+\renewcommand{\arraystretch}{1.0}
+}
+
+\end{appendices}

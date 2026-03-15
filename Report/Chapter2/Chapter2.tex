@@ -1,0 +1,88 @@
+% !TEX root =  ../Report.tex
+\section{Literature Review}
+\label{sec: Literature Review}
+
+\subsection{Bitcoin as a Financial Time Series}
+
+Bitcoin’s statistical properties distinguish it from conventional financial assets.Tang et al. (2025) confirm through systematic high-frequency analysis that Bitcoin displays non-linear behaviour, characterised by non-gaussian errors, time-varying volatility, and short-range autocorrelation in squared returns. These properties are consistent with those of mature equity markets, but amplified in magnitude \cite{tangStylizedFactsHighFrequency2025}. Bouri et al. (2022) deduce that Bitcoin's maximum conditional volatility reaches two orders of magnitude above the S\&P 500 equivalent, with the tail index varying between approximately 2 and 3 over time \cite{bouriBitcoinSP500Comovements2022}. Empirical analysis of daily returns conducted by the Nakamoto Portfolio (2023) provides further evidence, reporting a Bitcoin kurtosis of 105 against the S\&P 500's approximately 10 \cite{BitcoinHistoricalReturns}. Critically, these studies demonstrate that Bitcoin's return distribution is non-Gaussian, making any model that assumes normality structurally misspecified.
+
+The weak-form Efficient Market Hypothesis implies that historical price series contain no exploitable predictive signal - directly challenging the premise of any ML-based trading model. Demmler and Lengyel-Almost (2021) found that 80\% of the 25 reviewed articles reject weak-form EMH for Bitcoin. Critically, the paper notes that the three studies accepting efficiency used data prior to the 2017 price surge \cite{lengyel-almosBitcoinMarketEfficient2021}. This raises the concern that their sample periods did not include the most extreme inefficiency episodes, potentially skewing their reasoning. Yi et al. (2023) quantified this nuance using daily data from 2010 to 2019. First, Bitcoin's excess kurtosis for annualised log returns was $\approx9$ times greater than S\&P 500. This, combined with the Jarque-Bera test on sampling intervals of 1 to 16 days rejecting normality at the 0.1\% significance level, is consistent with the distributional findings discussed above. The random walk probabilites in Table \ref{tab:lit_bitcoin_facts} demonstrate that Bitcoin's efficiency is time-varying, with speculative regime transitions characterised by underlying trends more than stable periods \cite{yiMarketEfficiencyCryptocurrency2023}.
+\
+{  
+% \setlength{\LTleft}{-5pt}
+\setlength{\LTright}{\fill}
+\setlength{\LTpre}{-1pt}
+\setlength{\LTpost}{-5pt}
+  
+\renewcommand{\arraystretch}{0.75}
+\hyphenpenalty=50
+\begin{longtable}{| 
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.19\textwidth} | 
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.37\textwidth} | 
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.35\textwidth} |}
+\caption{Literature findings on Bitcoin stylised facts.\label{tab:lit_bitcoin_facts}}\\
+\hline
+\textbf{Citation} & 
+\textbf{Methodology Used} & 
+\textbf{Key Finding} \\ 
+\hline
+\endfirsthead
+
+\hline
+\textbf{Citation} & 
+\textbf{Methodology Used} & 
+\textbf{Key Finding} \\ 
+\hline
+\endhead
+    
+\hline
+\multicolumn{3}{r}{} \\
+\endfoot
+    
+\hline
+\endlastfoot
+
+Nakamoto Portfolio (2023) \cite{BitcoinHistoricalReturns} & 
+Descriptive statistical analysis of daily Bitcoin and S\&P 500 returns & 
+Bitcoin skewness = +2.8, kurtosis $\approx 105$; S\&P 500 skewness $\approx -0.3$, kurtosis $\approx 10$ \\ 
+\hline
+Bouri et al. (2022) \cite{bouriBitcoinSP500Comovements2022} & 
+Conditional moments framework to daily Bitcoin and S\&P 500 returns; time-varying tail index estimation; higher-moment co-movement analysis & 
+Bitcoin conditional volatility maximum is two orders of magnitude higher than S\&P 500; conditional skewness experiences far larger swings; tail index varies over time from $\mu \approx 2$ to $\mu \approx 3$ \\ 
+\hline
+Grobys (2023) \cite{grobysFractalComparativeView2023} & 
+Estimate Hurst exponents for Bitcoin and S\&P 500 using Mandelbrot's Rescaled Range (R/S) analysis; Detrended Fluctuation Analysis (DFA) as robustness check & 
+Bitcoin exhibits higher long-term dependence than S\&P 500; finite-kurtosis hypothesis rejected for S\&P 500 returns \\ 
+\hline
+\mbox{Demmler \& Lengyel}-Almos (2021) \cite{lengyel-almosBitcoinMarketEfficient2021} & 
+Review and tabulation of EMH test conclusions from 25 peer-reviewed Bitcoin studies & 
+80\% rejected weak-form EMH for Bitcoin \\ 
+\hline
+Yi et al. (2023) \cite{yiMarketEfficiencyCryptocurrency2023} & 
+Quantum harmonic oscillator (QHO) efficiency framework - daily Bitcoin, gold, S\&P 500, and USD/EUR data (2010 to 2019); Jarque-Bera normality tests (1--16 days intervals); variance ratio tests & 
+Excess kurtosis: BTC-42.5, S\&P 500-4.9, Gold-7.2, USD/EUR-1.8; Bitcoin random-walk P: 90.7\% overall, down to 87--88\% in 2013/2017 bubble episodes \\ 
+\hline
+\end{longtable}
+}
+\renewcommand{\arraystretch}{1.0}
+
+\subsection{Methods for Financial Time Series Analysis - Comparative Review}
+
+\textbf{Autoregressive Integrated Moving Average (ARIMA):} ARIMA models the conditional mean as a linear function of past observations \cite{box1970time}. Various sources report ARIMA’s performance is competitive for one-day-ahead price forecasts where linear dynamics dominate \cite{xiaPredictionFinancialTimeseries2025,kareemBitcoinForecastingClassical2025,tangSurveyMachineLearning2022}, but accuracy degrades beyond that horizon.
+
+\textbf{Generalised Autoregressive Conditional heteroskedasticity (GARCH):} Bollerslev's (1986) GARCH(1,1) models conditional variance as a function of past squared residuals and past conditional variance \cite{bollerslevGeneralizedAutoregressiveConditional1986}. Nelson (1991) identified standard GARCH treating positive and negative shocks symmetrically as a misspecification for assets with leverage effects \cite{nelsonConditionalHeteroskedasticityAsset1991}. 
+These leverage effects are documented in Bitcoin by Katsiampa (2017), confirmed empirically by Chan et al. (2023) and Kareem et al. (2025) \cite{katsiampaVolatilityEstimationBitcoin2017, chanBitcoinHalvingCycle2023, kareemBitcoinForecastingClassical2025}.
+
+Ardia et al. (2019) demonstrate that even a more flexible Markov-Switching GARCH requires five distinct states to adequately model Bitcoin's variance process, suggesting the regime structure is too complex for any pre-specified parametric model \cite{ardiaMarkovSwitchingGARCHModels2019}.
+
+\textbf{Machine learning methods:}
+
+\subsection{ML Classifiers for Financial Classification}
+
+\subsection{Data Labelling Methods}
+
+\subsection{Feature Selection Methods}
+
+\subsection{Hyperparameter Tuning}
+
+\subsection{Model Evaluation}
