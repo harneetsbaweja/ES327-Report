@@ -45,7 +45,7 @@ Heatmap of the objective metric (expected value) across the (profit target × st
     >{\centering\arraybackslash}p{0.25\textwidth} | 
     >{\centering\arraybackslash}p{0.34\textwidth} | 
     >{\centering\arraybackslash}p{0.34\textwidth} |}
-\caption{Comparison of Max EV vs Balanced parameters and label distribution.\label{tab:res tp parameters}}\\
+\caption{Comparison of Max EV (expected value of +1 label) vs Balanced parameters and label distribution.\label{tab:res tp parameters}}\\
 \hline
 \textbf{Metric} & 
 \textbf{Max EV} & 
@@ -140,7 +140,7 @@ One sentence on how many features - "Boruta confirmed 12 features under the Max 
 List of features with selections for each label split configuration are presented in Table \ref{tab:features_full} in Appendix \ref{app: Results}.
 
 \subsection{Hyperparameter Tuning}
-Two distinct sets of model hyperparameters were optimised to assess performance across triple-label distributions and study the trade-off between balanced label distribution and optimised for maximum expected value. Optuna study with 100 trials for each model with an early stop of 30 consecutive trials. There were no failed runs across any model.
+Two distinct sets of model hyperparameters were optimised to assess performance across triple-label distributions and study the trade-off between balanced label distribution and optimised for maximum expected value. Optuna study with 100 trials for each model with an early stop of 30 consecutive trials if no improvement is observed. There were no failed runs across any model. 
 
 \subsubsection{Overfitting Analysis}
 The metrics from best trial out of 100 were recorded below:
@@ -276,10 +276,7 @@ Observation: Which model generalises best (smallest delta), not just which achie
     \hline
     \mbox{Logistic Regression} & l1\_ratio & 0.0 -- 1.0 & lin & 0.385 & 0.824 & 0.8061 \\
     \hline
-    \mbox{Logistic Regression} & tol & \mbox{1e-5 -- 1e-2} & log & 0.001878 & $6.683e{-}4$ & 0.001148 \\
-    \hline
-    \hline
-    SVM-RBF & C & 1e-3 -- 1e3 & log & 0.0206 & 30.63 & 76.71 \\
+    SVM-RBF & C & \mbox{1e-4 -- 1e-4} & log & 0.0206 & 30.63 & 76.71 \\
     \hline
     SVM-RBF & gamma & 1e-4 -- 1e1 & log & $1.159e{-}4$ & 0.003013 & $4.512e{-}4$ \\
     \hline

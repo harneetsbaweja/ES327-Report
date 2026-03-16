@@ -1,8 +1,3 @@
 % !TEX root =  ../Report.tex
 
 \section{Hardware Implementation}
-
-Following virtual simulation testing, one of the controllers will be evaluated on the physical Quanser rotary pendulum system to assess performance under real-world conditions. Physical effects such as friction, actuator saturation, sensor noise, and unmodelled non-linearities such as the dead-band of the motors, will significantly influence the performance of the controllers in real life. 
-\noindent It is worth noting that the gain contributed by the phase lead controller at high-frequencies is less than that of the derivative block in PID, which means that it should be comparatively more robust against noise.
-
-\noindent Ultimately, PID controller might prove to be more robust, given that the Simulink step response of PID has 5\% less overshoot and 1 s less $T_s$ than the phase lead-lag controller. 
