@@ -4,7 +4,7 @@
 
 \subsection{Optimising Triple Barrier parameters}
 % =============== Triple Barrier ===============
-Heatmap of the objective metric (expected value) across the (profit target × stop loss) multipliers.
+Heatmap of the objective metric (expected value (EV) of +1 label) across the (profit target × stop loss) multipliers.
 % =============== Contour Plots ===============
 {
   % \setlength{\intextsep}{-5pt}      % space after figure  
@@ -28,9 +28,8 @@ Heatmap of the objective metric (expected value) across the (profit target × st
 \end{minipage}
 \end{figure}
 }
-\noindent \textcolor{red}{Observation:}
-
-\noindent Table of metrics of two different label distributions: maximum expected value with minimum entropy threshold of 85\% and completely balanced training dataset. 
+The EV contour (Figure \ref{fig:res tp contour}) shows maximum expected value concentrated in regions low profit multiplier $\lambda_p \in [0.8, 1.5]$ and mid-range stop multiplier $\lambda_s \in [2.0, 2.8]$. Most Optuna trials cluster in this region (dense black dots top-left), confirming TPE converged correctly.
+\noindent The entropy contour shows entropy rising as profit\_mult increases. The bottom-right region appears to have high entropy; the floor constraint of 0.85 likely cut the low-entropy region. The Max EV optimum at $(\lambda_p=1.25, \lambda_s=2.8)$ sits just inside the valid entropy region, producing an asymmetric label distribution (Table \ref{tab:res tp parameters}) in which the stop-loss class (-1) constitutes only 12.3\% of training labels — less than half the frequency of either other class. 
 % =============== Triple Barrier Table ===============
 {  
 % Longtable spacing (local to this table only)
@@ -100,14 +99,11 @@ Testing \mbox{labels split} &
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
-
-\textcolor{red}{A brief note on class imbalance - max EV label split, stop loss label is a minority across both test and train sets. Less than half of both neutral and profit target labels.
-`class weight='balanced'` fixes the *model's response* to imbalance. It cannot fix the *information content* of imbalanced labels. A well-calibrated label set should not need aggressive reweighting — balanced classes are a sign that the barriers are set at a level where the market genuinely splits roughly equally between profit hits, stop hits, and timeouts. That is what Kang (2025) was measuring when he optimised for class balance first.
-Justification of chosen values: asymmetric barriers (e.g. profit target > stop loss) reflect positive risk-reward expectations}
+Relative to the balanced configuration ($\lambda_s=1.2$), the Max EV configuration widens the stop-loss barrier more than threefold, reducing the $-1$ label frequency from $33.6\%$ to $12.3\%$ and raising label entropy from $0.9988$ to $0.8921$. The balanced configuration sacrifices $5\%$ expected value ($0.0298$ vs $0.0314$) in exchange for near-uniform class distribution.
 
 \subsection{Feature Selection}
 % =============== Feature Selection ===============
-Balanced plots:
+Figure \ref{fig:res boruta importance balanced} \& \ref{fig:res boruta importance max EV} presents the Boruta importance history under the balanced entropy configuration and max EV labels respectively. The y-axis shows the raw Random Forest Mean Decrease in Impurity (MDI) importance score for each feature across 100 Boruta iterations \cite{RandomForestClassifier,Boruta_pyBorutaBoruta_pypy}. 
 {
   % \setlength{\intextsep}{-5pt}      % space after figure  
   % \setlength{\textfloatsep}{-1pt}   % space before figure
@@ -134,16 +130,14 @@ Balanced plots:
 \end{figure}
 }
 
-\noindent \textcolor{red}{Stability narrative — what proportion of features were confirmed? If Boruta rejected most features, that is itself a finding: the signal-to-noise ratio in Bitcoin technical indicators is low, consistent with weak-form market efficiency literature.
-One sentence on how many features - "Boruta confirmed 12 features under the Max EV configuration and 9 under balanced, with 7 shared across both. Notably, Volatility EWMA was confirmed only under Max EV, suggesting the labelling choice penalises volatility-driven signals when entropy is prioritised."}
-
-List of features with selections for each label split configuration are presented in Table \ref{tab:features_full} in Appendix \ref{app: Results}.
+Box plots show the interquartile range (IQR) as the box. Whiskers extend to data points within $1.5 \times IQR$ of the box edges. Dots beyond $Q1 - 1.5 \times IQR$ or $Q3 + 1.5 \times IQR$ are outliers \cite{Plotlygraph_objectsBox660Documentation}. Box colour indicates Boruta classification: green (confirmed), orange (tentative), red (rejected).\\
+The distribution is broadly consistent between the two configurations but shifted downwards under Max EV, consistent with the more asymmetric label distribution (fewer -1 labels) reducing the signal available for some features. Confirmed features (green) characteristics: on-chain metrics (AdrActCnt, CapMVRVCur, CapMrktCurUSD) and medium-horizon momentum indicators (ROC\_30day, ROC\_14day, Momentum\_14day) display the highest median importance scores and widest IQRs, while most technical oscillators (RSI, MACD components, Bollinger Bands) are confirmed but with narrower distributions clustered near the shadow threshold.\\
+Under the Max EV configuration (Figure \ref{fig:res boruta importance max EV}), STOCHRSI transitions from rejected to confirmed, while TRANGE, FlowOutExNtv, TxCnt, TxTfrCnt, and Momentum\_7day are demoted, indicating that the labelling asymmetry (12.3\% stop-loss vs 33.6\% under balanced) materially alters which short-horizon features carry statistically significant predictive signal.\\
+\noindent List of features with selections for each label split configuration are presented in Table \ref{tab:features_full} in Appendix \ref{app: Results}.
 
 \subsection{Hyperparameter Tuning}
-Two distinct sets of model hyperparameters were optimised to assess performance across triple-label distributions and study the trade-off between balanced label distribution and optimised for maximum expected value. Optuna study with 100 trials for each model with an early stop of 30 consecutive trials if no improvement is observed. There were no failed runs across any model. 
+Two distinct sets of model hyperparameters were optimized to assess performance across triple-label distributions and study the trade-off between balanced label distribution and optimization for maximum expected value. An Optuna study with 100 trials was conducted for each model, with an early stop after 30 consecutive trials if no improvement in F1-macro was observed. There were no failed runs across any model. 
 
-\subsubsection{Overfitting Analysis}
-The metrics from best trial out of 100 were recorded below:
 {
 % \setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
@@ -153,104 +147,19 @@ The metrics from best trial out of 100 were recorded below:
 \hyphenpenalty=50
 \begin{longtable}{|
     >{\centering\arraybackslash}p{0.19\textwidth} |
-    >{\centering\arraybackslash}p{0.12\textwidth} |
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.09\textwidth} |
-    >{\centering\arraybackslash}p{0.07\textwidth} |
-    >{\centering\arraybackslash}p{0.07\textwidth} |
-    >{\centering\arraybackslash}p{0.07\textwidth} |
-    >{\centering\arraybackslash}p{0.08\textwidth} |
-    >{\centering\arraybackslash}p{0.06\textwidth} |}
-\caption{Model performance summary with GT Score.\label{tab:model_results}}\\
-\hline
-\textbf{Model} &
-\textbf{Label Dist} &
-\textbf{Objective} &
-\textbf{Train F1} &
-\textbf{Test F1} &
-\textbf{Gen Ratio} &
-\textbf{GT Score} &
-\textbf{Trials} \\
-\hline
-\endfirsthead
-
-\hline
-\textbf{Model} &
-\textbf{Label Dist} &
-\textbf{Objective} &
-\textbf{Train F1} &
-\textbf{Test F1} &
-\textbf{Gen Ratio} &
-\textbf{GT Score} &
-\textbf{Trials} \\
-\hline
-\endhead
-
-\hline
-\multicolumn{8}{r}{Continued on next page} \\
-\endfoot
-
-\hline
-\endlastfoot
-
-    \mbox{Logistic Regression} & Max EV & GT Score & 0.2385 & 0.2415 & 1.0125 & 0.2445 & 41 \\
-    \hline
-    \mbox{Logistic Regression} & Max EV & \mbox{F1 Macro} & 0.5825 & 0.2959 & 0.5080 & 0.1503 & 77 \\
-    \hline
-    \mbox{Logistic Regression} & Balanced & \mbox{F1 Macro} & 0.4506 & 0.3112 & 0.6906 & 0.2149 & 56 \\
-    \hline
-    \hline
-    SVM-RBF & Max EV & GT Score & 0.2044 & 0.1997 & 0.9774 & 0.1952 & 41 \\
-    \hline
-    SVM-RBF & Max EV & \mbox{F1 Macro} & 0.6998 & 0.2916 & 0.4167 & 0.1215 & 100 \\
-    \hline
-    SVM-RBF & Balanced & \mbox{F1 Macro} & 0.5929 & 0.3365 & 0.5676 & 0.1910 & 100 \\
-    \hline
-    \hline
-    Random Forest & Max EV & GT Score & 0.5965 & 0.2676 & 0.4487 & 0.1201 & 46 \\
-    \hline
-    Random Forest & Max EV & \mbox{F1 Macro} & 0.8202 & 0.2984 & 0.3638 & 0.1086 & 90 \\
-    \hline
-    Random Forest & Balanced & \mbox{F1 Macro} & 0.6063 & 0.3184 & 0.5252 & 0.1672 & 73 \\
-    \hline
-    \hline
-    XGBoost & Max EV & GT Score & 0.4512 & 0.3004 & 0.6659 & 0.2000 & 100 \\
-    \hline
-    XGBoost & Max EV & \mbox{F1 Macro} & 0.8020 & 0.3105 & 0.3872 & 0.1202 & 62 \\
-    \hline
-    XGBoost & Balanced & \mbox{F1 Macro} & 0.8019 & 0.3357 & 0.4186 & 0.1405 & 99 \\
-    \hline
-\end{longtable}
-\renewcommand{\arraystretch}{1.0}
-}
-\noindent \textcolor{red}{
-Note: What is test f1 here? This is result of 5 fold CV. Is it average test f1 of that trial?
-Observation: Which model generalises best (smallest delta), not just which achieves highest test performance. A note on whether any model collapsed }
-\subsubsection{Final Hyperparameters}
-
-{
-\setlength{\LTleft}{-5pt}
-\setlength{\LTright}{\fill}
-\setlength{\LTpre}{-1pt}
-\setlength{\LTpost}{-5pt}
-\renewcommand{\arraystretch}{0.75}
-\hyphenpenalty=50
-\begin{longtable}{|
-    >{\centering\arraybackslash}p{0.19\textwidth} |
-    >{\centering\arraybackslash}p{0.17\textwidth} |
-    >{\centering\arraybackslash}p{0.11\textwidth} |
+    >{\centering\arraybackslash}p{0.20\textwidth} |
+    >{\centering\arraybackslash}p{0.13\textwidth} |
     >{\centering\arraybackslash}p{0.06\textwidth} |
-    >{\centering\arraybackslash}p{0.09\textwidth} |
-    >{\centering\arraybackslash}p{0.09\textwidth} |
-    >{\centering\arraybackslash}p{0.11\textwidth} |}
+    >{\centering\arraybackslash}p{0.12\textwidth} |
+    >{\centering\arraybackslash}p{0.12\textwidth} |}
 \caption{Best hyperparameter values per model and training configuration.\label{tab:hyperparams}}\\
 \hline
 \textbf{Model} &
-\textbf{Hyper-parameter} &
+\textbf{Hyperparameter} &
 \textbf{Search Space} &
 \textbf{Sam-\newline pling} &
-\textbf{\mbox{Max EV} / GT Score} &
-\textbf{\mbox{Max EV} / F1 Macro} &
-\textbf{Bal. \mbox{Entropy/} \mbox{F1 Macro}} \\
+\textbf{Max EV} &
+\textbf{Balanced} \\
 \hline
 \endfirsthead
 
@@ -259,54 +168,54 @@ Observation: Which model generalises best (smallest delta), not just which achie
 \textbf{Hyper-parameter} &
 \textbf{Search Space} &
 \textbf{Sampling} &
-\textbf{Max EV / GT Score} &
-\textbf{Max EV / F1 Macro} &
-\textbf{Bal. Entropy / F1 Macro} \\
+\textbf{Max EV} &
+\textbf{Balanced} \\
 \hline
 \endhead
 
 \hline
-\multicolumn{7}{r}{Continued on next page} \\
+\multicolumn{6}{r}{Continued on next page} \\
 \endfoot
 
 \hline
 \endlastfoot
 
-    \mbox{Logistic Regression} & C & 1e-4 -- 1e4 & log & 0.001123 & 337.3 & 0.02708 \\
+    \mbox{Logistic Regression} & C & 1e-4 -- 1e4 & log & 337.3 & 0.02708 \\
     \hline
-    \mbox{Logistic Regression} & l1\_ratio & 0.0 -- 1.0 & lin & 0.385 & 0.824 & 0.8061 \\
+    \mbox{Logistic Regression} & l1\_ratio & 0.0 -- 1.0 & lin & 0.824 & 0.8061 \\
     \hline
-    SVM-RBF & C & \mbox{1e-4 -- 1e-4} & log & 0.0206 & 30.63 & 76.71 \\
+    SVM-RBF & C & \mbox{1e-4 -- 1e3} & log & 30.63 & 76.71 \\
     \hline
-    SVM-RBF & gamma & 1e-4 -- 1e1 & log & $1.159e{-}4$ & 0.003013 & $4.512e{-}4$ \\
-    \hline
-    \hline
-    Random Forest & max\_depth & 3 -- 12 & int & 3.0 & 11.0 & 3.0 \\
-    \hline
-    Random Forest & \mbox{min\_samples\_leaf} & 3 -- 20 & int & 18.0 & 19.0 & 18.0 \\
-    \hline
-    Random Forest & max\_features & 0.1 -- 1.0 & lin & 0.9078 & 0.331 & 0.6262 \\
-    \hline
-    Random Forest & n\_estimators & 100 -- 500 & int & 350.0 & 150.0 & 500.0 \\
+    SVM-RBF & gamma & 1e-4 -- 1e1 & log & 0.003013 & $4.512e{-}4$ \\
     \hline
     \hline
-    XGBoost & learning\_rate & 0.01 -- 0.3 & log & 0.01279 & 0.07385 & 0.0101 \\
+    Random Forest & max\_depth & 3 -- 12 & int & 11.0 & 3.0 \\
     \hline
-    XGBoost & max\_depth & 3 -- 10 & int & 3.0 & 3.0 & 4.0 \\
+    Random Forest & \mbox{min\_samples\_leaf} & 3 -- 20 & int & 19.0 & 18.0 \\
     \hline
-    XGBoost & subsample & 0.5 -- 1.0 & lin & 0.5229 & 0.535 & 0.6377 \\
+    Random Forest & max\_features & 0.1 -- 1.0 & lin & 0.331 & 0.6262 \\
     \hline
-    XGBoost & colsample\_bytree & 0.5 -- 1.0 & lin & 0.7637 & 0.7846 & 0.8921 \\
+    Random Forest & n\_estimators & 100 -- 500 & int & 150.0 & 500.0 \\
     \hline
-    XGBoost & reg\_alpha & \mbox{1e-4 -- 10} & log & 9.319 & 0.001129 & 6.916 \\
     \hline
-    XGBoost & reg\_lambda & \mbox{1e-4 -- 10} & log & 0.6423 & 8.365 & 0.003111 \\
+    XGBoost & learning\_rate & 0.01 -- 0.3 & log & 0.07385 & 0.0101 \\
     \hline
-    XGBoost & n\_estimators & 100 -- 500 & int & 200.0 & 100.0 & 450.0 \\
+    XGBoost & max\_depth & 3 -- 10 & int & 3.0 & 4.0 \\
+    \hline
+    XGBoost & subsample & 0.5 -- 1.0 & lin & 0.535 & 0.6377 \\
+    \hline
+    XGBoost & colsample\_bytree & 0.5 -- 1.0 & lin & 0.7846 & 0.8921 \\
+    \hline
+    XGBoost & reg\_alpha & \mbox{1e-4 -- 10} & log & 0.001129 & 6.916 \\
+    \hline
+    XGBoost & reg\_lambda & \mbox{1e-4 -- 10} & log & 8.365 & 0.003111 \\
+    \hline
+    XGBoost & n\_estimators & 100 -- 500 & int & 100.0 & 450.0 \\
     \hline
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
+
 \noindent \textcolor{red}{Observation:}
 
 \subsection{Model Classification Performance}
@@ -503,123 +412,17 @@ Below are the tables displaying performance metrics of machine learning models o
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
-
-{\setlength{\LTleft}{-5pt}
-\setlength{\LTright}{\fill}
-% \setlength{\LTpre}{-1pt}
-\setlength{\LTpost}{-5pt}
-\renewcommand{\arraystretch}{0.75}
-\hyphenpenalty=50
-\begin{longtable}{|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.16\textwidth} |
-    >{\centering\arraybackslash}p{0.05\textwidth} |
-    >{\centering\arraybackslash}p{0.08\textwidth} |
-    >{\centering\arraybackslash}p{0.08\textwidth} |
-    >{\centering\arraybackslash}p{0.08\textwidth} |
-    >{\centering\arraybackslash}p{0.08\textwidth} |
-    >{\centering\arraybackslash}p{0.09\textwidth} |
-    >{\centering\arraybackslash}p{0.07\textwidth} |
-    >{\centering\arraybackslash}p{0.08\textwidth} |}
-\caption{ML model performance metrics -- Max EV label, GT Score objective.\label{tab:perf_maxev_gt}}\\
-\hline
-\textbf{Metric} &
-\textbf{Set} &
-\textbf{Maj.} &
-\textbf{Strat.} &
-\textbf{Buy\newline\&Hold} &
-\textbf{Log Reg} &
-\textbf{Rnd Forest} &
-\textbf{SVC} &
-\textbf{XG \newline Boost} \\
-\hline
-\endfirsthead
-
-\hline
-\textbf{Metric} &
-\textbf{Set} &
-\textbf{Maj.} &
-\textbf{Strat.} &
-\textbf{Buy\newline\&Hold} &
-\textbf{Log Reg} &
-\textbf{Rnd Forest} &
-\textbf{SVC} &
-\textbf{XG \newline Boost} \\
-\hline
-\endhead
-
-\hline
-\multicolumn{9}{r}{Continued on next page} \\
-\endfoot
-
-\hline
-\endlastfoot
-    Accuracy & Train & 0.4497 & 0.4051 & 0.4497 & 0.3991 & 0.5107 & 0.1175 & 0.6037 \\
-    Accuracy & Test  & 0.4588 & 0.3828 & 0.4588 & 0.3840 & 0.2269 & 0.1622 & 0.4030 \\
-    \hline
-    \hline
-    \hline
-    F1 Macro & Train & 0.2068 & 0.3448 & 0.2068 & 0.2811 & 0.4720 & 0.0701 & 0.4276 \\
-    F1 Macro & Test  & 0.2097 & 0.3362 & 0.2097 & 0.2043 & 0.2177 & 0.0931 & 0.2894 \\
-    \hline
-    \hline
-    \hline
-    F1 Weighted & Train & 0.2790 & 0.4045 & 0.2790 & 0.2880 & 0.4754 & 0.0247 & 0.5660 \\
-    F1 Weighted & Test  & 0.2886 & 0.3793 & 0.2886 & 0.2198 & 0.2053 & 0.0453 & 0.3604 \\
-    \hline
-    \hline
-    \hline
-    Precision Macro & Train & 0.1499 & 0.3451 & 0.1499 & 0.2173 & 0.5196 & 0.0392 & 0.4026 \\
-    Precision Macro & Test  & 0.1529 & 0.3388 & 0.1529 & 0.2493 & 0.3952 & 0.0541 & 0.2751 \\
-    \hline
-    \hline
-    \hline
-    Recall Macro & Train & 0.3333 & 0.3445 & 0.3333 & 0.4003 & 0.5384 & 0.3333 & 0.4562 \\
-    Recall Macro & Test  & 0.3333 & 0.3362 & 0.3333 & 0.3438 & 0.3140 & 0.3333 & 0.3299 \\
-    \hline
-    \hline
-    \hline
-    \mbox{Balanced Acc} & Train & 0.3333 & 0.3445 & 0.3333 & 0.4003 & 0.5384 & 0.3333 & 0.4562 \\
-    \mbox{Balanced Acc} & Test  & 0.3333 & 0.3362 & 0.3333 & 0.3438 & 0.3140 & 0.3333 & 0.3299 \\
-    \hline
-    \hline
-    \hline
-    MCC & Train & 0.0000 & 0.0007 & 0.0000 & 0.0958 & 0.2490 & 0.0000 & 0.2977 \\
-    MCC & Test  & 0.0000 & -0.0065 & 0.0000 & 0.0620 & -0.0132 & 0.0000 & -0.0087 \\
-    \hline
-    \hline
-    \hline
-    \mbox{ROC AUC OVO} & Train & 0.5000 & 0.5084 & 0.5000 & 0.5550 & 0.7416 & 0.4222 & 0.7705 \\
-    \mbox{ROC AUC OVO} & Test  & 0.5000 & 0.5021 & 0.5000 & 0.4634 & 0.4501 & 0.5183 & 0.4756 \\
-    \hline
-    \hline
-    \hline
-    Overfit Gap & --- & -0.0029 & 0.0087 & -0.0029 & 0.0769 & 0.2543 & \mbox{-0.0229} & 0.1382 \\
-    \hline
-    \hline
-    \hline
-    Gen Ratio & --- & 1.0139 & 0.9749 & 1.0139 & 0.7266 & 0.4612 & 1.3272 & 0.6769 \\
-    \hline
-\end{longtable}
-\renewcommand{\arraystretch}{1.0}
-}
-\noindent \textcolor{red}{Observation:}
 % =============== CONFUSION MATRICES ===============
 \noindent Below are the confusion matrices for all the models. XGBoost labels are mapped as follows $-1 \rightarrow 0, 0 \rightarrow 1$ and $1 \rightarrow 2$:
 \begin{figure}[H]
   \centering
-  \begin{minipage}{0.32\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_gt_score_log.png}
-    \captionof{figure}{Max EV GT Score}
-    \label{fig:cm_log_gt}
-  \end{minipage}\hfill
-  \begin{minipage}{0.32\textwidth}
+  \begin{minipage}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_log.png}
     \captionof{figure}{Max EV F1 Macro}
     \label{fig:cm_log_f1}
   \end{minipage}\hfill
-  \begin{minipage}{0.32\textwidth}
+  \begin{minipage}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_log.png}
     \captionof{figure}{Balanced F1 Macro}
@@ -631,19 +434,13 @@ Below are the tables displaying performance metrics of machine learning models o
 
 \begin{figure}[H]
   \centering
-  \begin{minipage}{0.32\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_gt_score_rf.png}
-    \captionof{figure}{Max EV GT Score}
-    \label{fig:cm_rf_gt}
-  \end{minipage}\hfill
-  \begin{minipage}{0.32\textwidth}
+  \begin{minipage}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_rf.png}
     \captionof{figure}{Max EV F1 Macro}
     \label{fig:cm_rf_f1}
   \end{minipage}\hfill
-  \begin{minipage}{0.32\textwidth}
+  \begin{minipage}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_rf.png}
     \captionof{figure}{Balanced F1 Macro}
@@ -655,19 +452,13 @@ Below are the tables displaying performance metrics of machine learning models o
 
 \begin{figure}[H]
   \centering
-  \begin{minipage}{0.32\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_gt_score_svc.png}
-    \captionof{figure}{Max EV GT Score}
-    \label{fig:cm_svc_gt}
-  \end{minipage}\hfill
-  \begin{minipage}{0.32\textwidth}
+  \begin{minipage}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_svc.png}
     \captionof{figure}{Max EV F1 Macro}
     \label{fig:cm_svc_f1}
   \end{minipage}\hfill
-  \begin{minipage}{0.32\textwidth}
+  \begin{minipage}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_svc.png}
     \captionof{figure}{Balanced F1 Macro}
@@ -679,19 +470,13 @@ Below are the tables displaying performance metrics of machine learning models o
 
 \begin{figure}[H]
   \centering
-  \begin{minipage}{0.32\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_gt_score_xgboost.png}
-    \captionof{figure}{Max EV GT Score}
-    \label{fig:cm_xgb_gt}
-  \end{minipage}\hfill
-  \begin{minipage}{0.32\textwidth}
+  \begin{minipage}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_xgboost.png}
     \captionof{figure}{Max EV F1 Macro}
     \label{fig:cm_xgb_f1}
   \end{minipage}\hfill
-  \begin{minipage}{0.32\textwidth}
+  \begin{minipage}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_xgboost.png}
     \captionof{figure}{Balanced F1 Macro}
@@ -852,78 +637,5 @@ Calmar Ratio & Test & 0.067 & 0.947 & 0.281 & 2.293 & 0.913 & 1.296 & 0.947 \\
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
-{
-% \setlength{\LTleft}{-5pt}
-\setlength{\LTright}{\fill}
-\setlength{\LTpre}{-1pt}
-\setlength{\LTpost}{-5pt}
-\renewcommand{\arraystretch}{0.75}
-\hyphenpenalty=50
-\begin{longtable}{
-    |>{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.15\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.04\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.06\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.06\textwidth}|}
-\caption{Trading metrics -- Max EV GT Score configuration.\label{tab:trade_max_ev_gt}} \\
-\hline
-\textbf{Metric} & \textbf{Set} & \textbf{Strat.} & \textbf{Buy\newline \&Hold} & \textbf{Log Reg} & \textbf{Rnd F.} & \textbf{SVC} & \textbf{XGB} & \textbf{BTC Pass.} \\
-\hline
-\endfirsthead
-\hline
-\textbf{Metric} & \textbf{Set} & \textbf{Strat.} & \textbf{Buy\newline \&Hold} & \textbf{Log Reg} & \textbf{Rnd F.} & \textbf{SVC} & \textbf{XGB} & \textbf{BTC Pass.} \\
-\hline
-\endhead
-\hline \multicolumn{9}{r}{Continued on next page} \\
-\endfoot
-\hline
-\endlastfoot
-\mbox{Trade Count} & Train & 1428 & 3182 & 0 & 478 & 0 & 1569 & --- \\\hline\hline
-\mbox{Trade Count} & Test & 351 & 789 & 0 & 35 & 0 & 284 & 789 \\
-\hline\hline
-\mbox{Trade Freq \%} & Train & 44.9 & 100.0 & 0.0 & 15.0 & 0.0 & 49.3 & --- \\\hline\hline
-\mbox{Trade Freq \%} & Test & 44.5 & 100.0 & 0.0 & 4.4 & 0.0 & 36.0 & 100.0 \\
-\hline\hline
-\mbox{Win Rate} & Train & 0.595 & 0.602 & 0.000 & 0.787 & 0.000 & 0.710 & --- \\\hline\hline
-\mbox{Win Rate} & Test & 0.598 & 0.601 & 0.000 & 0.714 & 0.000 & 0.563 & 0.601 \\
-\hline\hline
-\mbox{Profit Factor} & Train & 1.354 & 1.330 & 0.000 & 4.646 & 0.000 & 1.985 & --- \\\hline\hline
-\mbox{Profit Factor} & Test & 1.309 & 1.251 & 0.000 & 2.617 & 0.000 & 1.212 & 1.251 \\
-\hline\hline
-\mbox{Avg Win \%} & Train & 5.668 & 5.705 & --- & 6.613 & --- & 6.697 & --- \\\hline\hline
-\mbox{Avg Win \%} & Test & 4.122 & 4.106 & --- & 5.934 & --- & 4.547 & 4.106 \\
-\hline\hline
-\mbox{Avg Loss \%} & Train & 6.139 & 6.490 & --- & 5.248 & --- & 8.260 & --- \\\hline\hline
-\mbox{Avg Loss \%} & Test & 4.690 & 4.937 & --- & 5.668 & --- & 4.843 & 4.937 \\
-\hline\hline
-\mbox{Cum Return \%} & Train & 5.2e+7 & 4.0e+11 & 0 & 8.4e+11 & 0 & 3.5e+17 & --- \\\hline\hline
-\mbox{Cum Return \%} & Test & 39063 & 157358 & 0 & 13224 & 0 & 12819 & 1574 \\
-\hline\hline
-\mbox{Sharpe Ratio} & Train & 1.523 & 2.143 & --- & 4.185 & --- & 3.761 & --- \\\hline\hline
-\mbox{Sharpe Ratio} & Test & 1.466 & 1.815 & --- & 1.612 & --- & 0.921 & 1.815 \\
-\hline\hline
-\mbox{Sortino Ratio} & Train & 2.147 & 2.957 & --- & 9.227 & --- & 5.674 & --- \\\hline\hline
-\mbox{Sortino Ratio} & Test & 2.122 & 2.542 & --- & 2.889 & --- & 1.297 & 2.542 \\
-\hline\hline
-\mbox{Expected Value} & Train & 0.0088 & 0.0085 & --- & 0.0408 & --- & 0.0236 & --- \\\hline\hline
-\mbox{Expected Value} & Test & 0.0058 & 0.0050 & --- & 0.0262 & --- & 0.0045 & --- \\\hline\hline
-\mbox{Wrong$+1$ loss\%} & Train & 6.139 & 6.490 & --- & 5.248 & --- & 8.260 & --- \\\hline\hline
-\mbox{Wrong$+1$ loss\%} & Test & 4.690 & 4.937 & --- & 5.668 & --- & 4.843 & --- \\\hline\hline
-\hline\hline
-\mbox{Max Drawdown} & Train & -0.995 & -1.000 & 0.000 & -0.609 & 0.000 & -0.990 & --- \\\hline\hline
-\mbox{Max Drawdown} & Test & -0.755 & -0.939 & 0.000 & -0.280 & 0.000 & -0.897 & -0.939 \\
-\hline\hline
-\mbox{Calmar Ratio} & Train & 0.975 & 3.002 & --- & 5.329 & --- & 10.920 & --- \\\hline\hline
-
-\mbox{Calmar Ratio} & Test & 0.877 & 1.553 & --- & 1.102 & --- & 0.336 & 1.553 \\
-\hline
-\end{longtable}
-\renewcommand{\arraystretch}{1.0}
-}
-
 
 \subsection{Feature Importance}
