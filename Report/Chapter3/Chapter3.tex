@@ -20,15 +20,65 @@ This project implements an eight-stage supervised classification pipeline to cre
 }
 % =============== DATA SOURCES AND ACQUISITION ===============
 \subsection{Data Sources \& Acquisition (0.75 pages)}
-Three distinct data sources were combined to capture price, sentiment, and on-chain behaviour. One sentence framing why multiple sources are needed - used publicly available sources for accessibility, but needed multiple sources because couldn't find data in one place that wasn't rate limited behind paywalls.
+\label{subsec: Data Sources}
+Three distinct data sources were combined to capture price, sentiment, and on-chain behaviour. Publicly available sources were preferred for accessibility, lack of sources where data access was not restricted meant multiple data sources were necessary.
+% =============== YAHOO FINANCE ===============
+\subsubsection{Yahoo Finance (via yfinance)}
+\label{subsubsec: yfinance}
+Daily BTC-USD Open, High, Low, Close, Volume (OHLCV) data from 24/09/2014–01/03/2026 were downloaded via the yfinance library as a Pandas DataFrame. yfinance is an unofficial wrapper around Yahoo Finance's internal data feed rather than a licensed primary feed. This does not affect project implementation - yfinance is widely used in academic ML-finance research and daily OHLCV data is consistent across providers at this frequency \cite{chenAnalysisBitcoinPrice2023}.
+% =============== COIN METRICS ===============
+\subsubsection{CoinMetrics}
+\label{subsubsec: CoinMetrics}
+CoinMetrics is an open-source project founded in 2017 with a public community API. Thirty-one fundamental daily blockchain activity metrics were retrieved \cite{coinMetrics} from the first data available (03-01-2009). Metrics like MVRV, mean hash rate capture supply/demand dynamics and network health that price-only data misses. All features listed in Table \ref{tab:features_full} in Appendix \ref{app: Results}.
+Other on-chain data providers were evaluated (e.g. BGeometrics, CoinGecko) but rejected due to rate limits on free tiers making systematic retrieval impractical for a reproducible pipeline.
+% =============== FGI DATA ===============
+\subsubsection{Fear \& Greed Index (fear-and-greed-crypto)}
+\label{subsubsec: FGI}
+The Fear \& Greed Index (FGI) was downloaded and cached from an unofficial Python wrapper \cite{reismanRhettreFearandgreedcrypto2026}. FGI availability is limited to 2018 onwards, which imposes a data constraint. This presents a tradeoff: reduce the dataset range by $\sim$4 years. The composite index captures volatility, momentum, and volume signals that are already captured by the Ta-Lib indicators. It was excluded due to partial feature redundancy. 
 % =============== FEATURE ENGINEERING ===============
-\subsection{Feature Engineering (0.5 pages)}
+\subsubsection{Feature Engineering (Ta-Lib)}
+\label{subsubsec: Feature Engineering}
+Ta-Lib (Technical Analysis Library) is a C-based open-source library with Python bindings that computes standardised technical indicators from OHLCV inputs \cite{TALibTechnicalAnalysis}. In the project notebook ‘02 Feature Engineering’ (Figure \ref{fig:meth Project Pipeline}) it is used alongside Pandas/NumPy to construct the full feature matrix from the raw price history. The notebook produces 58 features in total over five categories: momentum, trend, volatility, volume, and trend direction.\\
+\noindent Ta-Lib implements indicators according to their canonical published specifications (e.g., Wilder's original RSI definition, not a simplified rolling-mean approximation). It is also the dominant library in the academic ML-finance literature. Using Ta-Lib, along with following standard literature defaults for parameters, ensures that the project maintains comparability with other works \cite{radmandHybridTLBOXGBoost2025, shangSentimentDrivenBitcoinPrice2025, tummonTradingCryptocurrencyDeep2020}. Calculating indicators with lookback periods produces leading NaN rows, introducing a constraint on available data. 
+% =============== DATA ALIGNMENT AND MERGING ===============
+\subsubsection{Data Alignment \& Merging}
+\label{subsubsec: Data Alignment \& Merging}
+\textbf{Merging:} Each source was reindexed to a full daily DatetimeIndex covering its own native date range. Fundamental metrics were sequentially merged into the OHLCV DataFrame using direct column assignment based on the price history index. As confirmed by inspection, the only missing price values were the final day's finance OHLCV entries.\\
+\noindent \textbf{Data cleaning:} Ta-Lib NaN warmup - These rows are explicitly dropped for the primary model training dataset in notebook ‘04 Data Label \& Split’. Excluded deterministic fields (total issuance, daily block count) and redundant USD-denominated duplicates of native fields from CoinMetrics data.\\
+\textbf{Storage:} Intermediate data was serialised to pickle files at each pipeline stage (01\_bitcoin\_data.pkl, 02\_engineered\_features.pkl, etc.). This pattern decouples pipeline stages, enabling independent re-execution of any notebook without re-running upstream data acquisition.
 % =============== DATA LABELLING ===============
-\subsection{Data Labelling (1.0 pages)}
-This is your biggest methodological contribution over prior work — it needs the most space: what it is, the three barriers, EWMA scaling, class imbalance, and the Overbought/Neutral/Oversold mapping
+\subsection{Data Labelling}
+
+To implement an end-to-end pipeline before diving deep into the research and finalising how to label data, scipy.signal.find\_peaks \cite{Find_peaksSciPyV1170} was used to generate provisional binary labels marking local price maxima. This approach served as a functional placeholder.
+% =============== THREE CLASS & TRIPLE BARRIER JUSTIFICATION ===============
+\subsubsection{Justification for three classes \& Triple Barrier Approach}
+A binary label (up/down) forces a directional position every day. In practice, many days lack clear opportunities. The Neutral class absorbs ambiguous observations, so the model only trades when there is a sufficiently strong signal. Furthermore, the Neutral class offers control over the up/down barriers, providing the versatility to tailor trade signals aligned with particular strategies. The triple barrier method addresses a key issue - labels reflect the path of prices, not solely the endpoint \cite{lopezdepradoAdvancesFinancialMachine2018}. Otherwise, a label assigned from today's close to next week's close disregards what happened intra-period.
+% =============== TRIPLE BARRIER IMPLEMENTATION ===============
+\subsubsection{Triple Barrier Implementation}
+For each entry day $i$, two horizontal barriers and one vertical barrier are defined:
+\begin{gather}
+Profit\_target =  P_i \times (1 + \lambda_p \times \sigma_i)\label{eq: tp profit} \\
+Stop\_loss =  P_i \times (1 + \lambda_s \times \sigma_i)\label{eq: tp loss}
+\end{gather}
+where $P_i$ is the closing price, $\sigma_i$ is the 100-day EWMA volatility at day $i$, and $\lambda_p$, $\lambda_s$ are the profit and stop multipliers respectively. The vertical barrier is a fixed holding period of 7 days.\\
+EWMA is more responsive to recent volatility than a simple rolling standard deviation. A spike yesterday immediately shifts the barrier width rather than being diluted across the entire 100-day window. This means the barriers produce adaptive position sizing, which is meaningful for a real trading context, where they are wider during high-volatility regimes. The 100-day window is an adoption of the standard Lopez strategy \cite{lopezdepradoAdvancesFinancialMachine2018}.
+The labels were assigned using the following decision logic:\\
+$\bullet$ If profit target is hit first within the holding period: $+1$\\
+$\bullet$ If stop loss is hit first: $-1$\\
+$\bullet$ If neither barrier is hit within 7 days: 0\\
+$\bullet$ If both are hit: whichever was hit at the earlier index position wins.\\
+For each daily entry, the triple\_barrier.py (Figure \ref{fig:meth Project Pipeline}) outputs the label, returns, exit\_price, and barrier\_hit\_times. The return is the realised return from entry to whichever barrier was hit -- this feeds directly into the trade metrics evaluation in notebook ‘08 Model Evaluation’ (Figure \ref{fig:meth Project Pipeline}).
 % =============== TRIPLE BARRIER PARAMETERS ===============
-\subsection{Optimising Triple Barrier Parmameters (0.75 pages)}
-Search space, 100 trials, model-agnostic F1 objective, resulting label distribution — reportable and replicable detail
+\subsubsection{Optimising Triple Barrier Parmameters}
+The multipliers $\lambda_p$ and $\lambda_s$ determine the barrier width and therefore the entire label distribution. All downstream model performance is sensitive to this decision; different values produce:\\
+$\bullet$ Different class proportions, class imbalance degrades performance of some classifiers \cite{lopezdepradoAdvancesFinancialMachine2018}.\\
+$\bullet$ Different expected returns, which affect the performance of trading metrics.\\
+\textbf{Parameter search approach:} the expected value per bar of +1 labels was used as the fitness value to optimise the parameters of the Triple Barrier Labeling Method \cite{fuEnhancedGeneticAlgorithmDrivenTriple2024}.
+\begin{gather}
+Objective =  f_{+1} \times \bar{r}_{+1} \label{eq: tp objective}
+\end{gather}
+It is a model-agnostic metric that rewards both finding profitable long opportunities frequently (frequency, $f_{+1}$) and making them meaningfully profitable (mean realised return, $\bar{r}_{+1}$) when they occur. To mitigate severe class imbalance, a normalised Shannon entropy lower threshold of 0.85 was set \cite{deduEntropyBasedPortfolioOptimization2026}. The threshold was determined empirically to achieve a sufficient proportion +1 labels while preserving class distribution. Any trial with entropy below this threshold was scored 0 and discarded.\\
+Optuna is an open-source hyperparameter optimisation framework \cite{OptunaHyperparameterOptimization} used in timeseries ML literature to implement automatic bayesian search for specified search space \cite{stoikovMarketMakingCrypto2025, bieganowskiSupervisedAutoencoderMLP2025}. After the last $20\%$ of the dataset is dropped to remove the test set, a search space of $[0.5, 3.0]$ is used to find $\lambda_p/_s$ in steps of $0.05$. A Tree-structured Parzen Estimator (TPE) search algorithm with a random seed was configured for 100 trials to search for the multipliers that would maximise the objective \cite{ozakiMultiobjectiveTreeStructuredParzen2022}. All metrics were logged to MLflow, a widely adopted open-source Artificial Intelligence operations platform \cite{MLflowOpenSource}. The final multipliers and label distributions are presented in Table \ref{tab:res tp parameters}
 % =============== TRAIN/TEST SPLIT===============
 \subsection{Train/Test Split (0.25 pages)}
 \textcolor{red}{Where does discussion of cross validation split in hyperparameter tuning go?}
