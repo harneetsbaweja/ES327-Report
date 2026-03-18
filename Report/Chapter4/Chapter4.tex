@@ -104,6 +104,7 @@ Relative to the balanced configuration ($\lambda_s=1.2$), the Max EV configurati
 \subsection{Feature Selection}
 % =============== Feature Selection ===============
 Figure \ref{fig:res boruta importance balanced} \& \ref{fig:res boruta importance max EV} presents the Boruta importance history under the balanced entropy configuration and max EV labels respectively. The y-axis shows the raw Random Forest Mean Decrease in Impurity (MDI) importance score for each feature across 100 Boruta iterations \cite{RandomForestClassifier,Boruta_pyBorutaBoruta_pypy}. 
+% =============== FEATURE SELECTION IMAGES ===============
 {
   % \setlength{\intextsep}{-5pt}      % space after figure  
   % \setlength{\textfloatsep}{-1pt}   % space before figure
@@ -129,20 +130,19 @@ Figure \ref{fig:res boruta importance balanced} \& \ref{fig:res boruta importanc
 \end{minipage}
 \end{figure}
 }
-
 \noindent Box plots show the interquartile range (IQR) as the box. Whiskers extend to data points within $1.5 \times IQR$ of the box edges. Dots beyond $Q1 - 1.5 \times IQR$ or $Q3 + 1.5 \times IQR$ are outliers \cite{Plotlygraph_objectsBox660Documentation}. Box colour indicates Boruta classification: green (confirmed), orange (tentative), red (rejected).\\
 The distribution is broadly consistent between the two configurations but shifted downwards under Max EV, consistent with the more asymmetric label distribution (fewer -1 labels) reducing the signal available for some features. Confirmed features (green) characteristics: on-chain metrics (AdrActCnt, CapMVRVCur, CapMrktCurUSD) and medium-horizon momentum indicators (ROC\_30day, ROC\_14day, Momentum\_14day) display the highest median importance scores and widest IQRs, while most technical oscillators (RSI, MACD components, Bollinger Bands) are confirmed but with narrower distributions clustered near the shadow threshold.\\
 Under the Max EV configuration (Figure \ref{fig:res boruta importance max EV}), STOCHRSI transitions from rejected to confirmed, while TRANGE, FlowOutExNtv, TxCnt, TxTfrCnt, and Momentum\_7day are demoted, indicating that the labelling asymmetry (12.3\% stop-loss vs 33.6\% under balanced) materially alters which short-horizon features carry statistically significant predictive signal.\\
 \noindent List of features with selections for each label split configuration are presented in Table \ref{tab:features_full} in Appendix \ref{app: Results}.
-
+% =============== Hyperparameter Tuning ===============
 \subsection{Hyperparameter Tuning}
-Two distinct sets of model hyperparameters were optimized to assess performance across triple-label distributions and study the trade-off between balanced label distribution and optimization for maximum expected value. An Optuna study with 100 trials was conducted for each model, with an early stop after 30 consecutive trials if no improvement in F1-macro was observed. There were no failed runs across any model. 
-
+Two distinct sets of model hyperparameters were optimised to assess performance across triple-label distributions and study the trade-off between balanced label distribution and optimization for maximum expected value. An Optuna study with 100 trials was conducted for each model, with an early stop after 30 consecutive trials if no improvement in F1-macro was observed. There were no failed runs across any model. 
+% =============== Hyperparameter Table ===============
 {
 % \setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
-\setlength{\LTpre}{-1pt}
-\setlength{\LTpost}{-5pt}
+\setlength{\LTpre}{1pt}
+\setlength{\LTpost}{-3pt}
 \renewcommand{\arraystretch}{0.75}
 \hyphenpenalty=50
 \begin{longtable}{|
@@ -157,7 +157,7 @@ Two distinct sets of model hyperparameters were optimized to assess performance 
 \textbf{Model} &
 \textbf{Hyperparameter} &
 \textbf{Search Space} &
-\textbf{Sam-\newline pling} &
+\textbf{Sam\newline pling} &
 \textbf{Max EV} &
 \textbf{Balanced} \\
 \hline
@@ -180,13 +180,13 @@ Two distinct sets of model hyperparameters were optimized to assess performance 
 \hline
 \endlastfoot
 
-    \mbox{Logistic Regression} & C & 1e-2 -- 1e2.3 & log & 337.3 & 0.02708 \\
+    \mbox{Logistic Regression} & C & 1e-4 -- 1e4 & log & 337.3 & 0.02708 \\
     \hline
     \mbox{Logistic Regression} & l1\_ratio & 0.0 -- 1.0 & linear & 0.8240 & 0.8061 \\
     \hline
     \mbox{Logistic Regression} & tol & \mbox{1e-5 –- 1e-2} & log & $6.6825e{-4}$ & $1.147e{-3}$ \\
     \hline
-    SVM-RBF & C & \mbox{1e-4 -- 1e3} & log & 30.63 & 76.71 \\
+    SVM-RBF & C & \mbox{1e-4 -- 1e4} & log & 30.63 & 76.71 \\
     \hline
     SVM-RBF & gamma & 1e-4 -- 1e1 & log & 0.003013 & $4.512e{-}4$ \\
     \hline
@@ -208,27 +208,25 @@ Two distinct sets of model hyperparameters were optimized to assess performance 
     \hline
     XGBoost & colsample\_bytree & 0.5 -- 1.0 & lin & 0.7846 & 0.8921 \\
     \hline
-    XGBoost & reg\_alpha & \mbox{1e-4 -- 10} & log & 0.001129 & 6.916 \\
+    XGBoost & reg\_alpha & \mbox{1e-3 -- 10} & log & 0.001129 & 6.916 \\
     \hline
-    XGBoost & reg\_lambda & \mbox{1e-4 -- 10} & log & 8.365 & 0.003111 \\
+    XGBoost & reg\_lambda & \mbox{1e-3 -- 10} & log & 8.365 & 0.003111 \\
     \hline
     XGBoost & n\_estimators & 100 -- 500 & int & 100.0 & 450.0 \\
     \hline
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
-
-\noindent \textcolor{red}{Observation:}
-
+\noindent Logistic Regression exhibits a four-order-of-magnitude divergence in C across label configurations (Max EV: 337.3; Balanced: 0.027), whilst both configurations converge to a Lasso-dominant Elastic Net mix (l1\_ratio: Max EV 0.824; Balanced 0.806). SVM-RBF selects markedly different gamma values (Max EV: $3.01 \times 10^{-3}$; Balanced: $4.51 \times 10^{-4}$) alongside a higher C under Balanced labels (76.71 vs 30.63). Random Forest selects near-maximal min\_samples\_leaf values across both configurations (Max EV: 19; Balanced: 18), whilst max\_depth diverges substantially (Max EV: 11; Balanced: 3). XGBoost and Logistic Regression both select Lasso-dominant regularisation under Balanced labels (reg\_alpha = 6.916, reg\_lambda = 0.003).
+% =============== Model Classification Performance ===============
 \subsection{Model Classification Performance}
-
-Below are the tables displaying performance metrics of machine learning models on training and test datasets.
-% =============== Max Ev Trade Metrics ===============
+Below are the tables summarised displaying performance metrics of machine learning models on training and test datasets. Full tables can be found in Appendix \ref{app: Model Classification Performance}.
+% =============== Model Classification Table - Balanced Labels ===============
 {
 % \setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
 \setlength{\LTpre}{3pt}
-\setlength{\LTpost}{-3pt}
+\setlength{\LTpost}{-1pt}
 \renewcommand{\arraystretch}{0.75}
 \hyphenpenalty=50
 \begin{longtable}{|
@@ -239,26 +237,26 @@ Below are the tables displaying performance metrics of machine learning models o
     >{\centering\arraybackslash}p{0.13\textwidth} |
     >{\centering\arraybackslash}p{0.07\textwidth} |
     >{\centering\arraybackslash}p{0.13\textwidth} |}
-\caption{ML model performance metrics -- Max EV Dist./F1 Macro objective.\label{tab:perf_max_ev_f1}}\\
+\caption{ML model performance metrics -- Balanced Entropy Dist./F1 Macro objective.\label{tab:summary_perf_bal_f1}}\\
 \hline
 \textbf{Metric} &
 \textbf{Set} &
-\textbf{\mbox{Buy\&Hold}} &
+\textbf{\mbox{Stratified}} &
 \textbf{Log Reg} &
 \textbf{\mbox{Rnd Forest}} &
 \textbf{SVC} &
-\textbf{\mbox{XG Boost}} \\
+\textbf{\mbox{XGBoost}} \\
 \hline
 \endfirsthead
 
 \hline
 \textbf{Metric} &
 \textbf{Set} &
-\textbf{Buy\&Hold} &
+\textbf{\mbox{Stratified}} &
 \textbf{Log Reg} &
 \textbf{\mbox{Rnd Forest}} &
 \textbf{SVC} &
-\textbf{\mbox{XG Boost}} \\
+\textbf{\mbox{XGBoost}} \\
 \hline
 \endhead
 
@@ -269,45 +267,37 @@ Below are the tables displaying performance metrics of machine learning models o
 \hline
 \endlastfoot
 
-    Accuracy & Train & 0.3567 & 0.4428 & 0.5267 & 0.5179 & 0.7231 \\
-    Accuracy & Test  & 0.3650 & 0.4081 & 0.4170 & 0.4322 & 0.4246 \\
+    Accuracy & Train & 0.3224 & 0.4428 & 0.5267 & 0.5179 & 0.7231 \\
+    Accuracy & Test  & 0.3384 & 0.4081 & 0.4170 & 0.4322 & 0.4246 \\
     \hline
+    F1 Macro & Train & 0.3213 & 0.4343 & 0.5250 & 0.5141 & 0.7221 \\
+    F1 Macro & Test  & 0.3335 & 0.1953 & 0.2327 & 0.3145 & 0.2429 \\
     \hline
-    F1 Macro & Train & 0.1753 & 0.4343 & 0.5250 & 0.5141 & 0.7221 \\
-    F1 Macro & Test  & 0.1783 & 0.1953 & 0.2327 & 0.3145 & 0.2429 \\
+    % F1 Weighted & Train & 0.3225 & 0.4325 & 0.5248 & 0.5135 & 0.7230 \\
+    % F1 Weighted & Test  & 0.3413 & 0.2388 & 0.2771 & 0.3559 & 0.2912 \\
+    % \hline
+    % Precision Macro & Train & 0.3214 & 0.4471 & 0.5287 & 0.5315 & 0.7222 \\
+    % Precision Macro & Test  & 0.3348 & 0.3026 & 0.3898 & 0.3793 & 0.3175 \\
+    % \hline
+    % Recall Macro & Train & 0.3213 & 0.4482 & 0.5289 & 0.5226 & 0.7220 \\
+    % Recall Macro & Test  & 0.3379 & 0.3335 & 0.3441 & 0.3686 & 0.3497 \\
+    % \hline
+    \mbox{Balanced Acc} & Train & 0.3213 & 0.4482 & 0.5289 & 0.5226 & 0.7220 \\
+    \mbox{Balanced Acc} & Test  & 0.3379 & 0.3335 & 0.3441 & 0.3686 & 0.3497 \\
     \hline
+    MCC & Train & -0.0177 & 0.1747 & 0.2938 & 0.2889 & 0.5840 \\
+    MCC & Test  & 0.0002 & 0.0019 & 0.0539 & 0.0861 & 0.0718 \\
     \hline
-    F1 Weighted & Train & 0.1876 & 0.4325 & 0.5248 & 0.5135 & 0.7230 \\
-    F1 Weighted & Test  & 0.1952 & 0.2388 & 0.2771 & 0.3559 & 0.2912 \\
+    \mbox{ROC AUC OVO} & Train & 0.4909 & 0.6466 & 0.7244 & 0.7093 & 0.8865 \\
+    \mbox{ROC AUC OVO} & Test  & 0.5034 & 0.5406 & 0.5036 & 0.5248 & 0.5243 \\
     \hline
-    \hline
-    Precision Macro & Train & 0.1189 & 0.4471 & 0.5287 & 0.5315 & 0.7222 \\
-    Precision Macro & Test  & 0.1217 & 0.3026 & 0.3898 & 0.3793 & 0.3175 \\
-    \hline
-    \hline
-    Recall Macro & Train & 0.3333 & 0.4482 & 0.5289 & 0.5226 & 0.7220 \\
-    Recall Macro & Test  & 0.3333 & 0.3335 & 0.3441 & 0.3686 & 0.3497 \\
-    \hline
-    \hline
-    \mbox{Balanced Acc} & Train & 0.3333 & 0.4482 & 0.5289 & 0.5226 & 0.7220 \\
-    \mbox{Balanced Acc} & Test  & 0.3333 & 0.3335 & 0.3441 & 0.3686 & 0.3497 \\
-    \hline
-    \hline
-    MCC & Train & 0.0000 & 0.1747 & 0.2938 & 0.2889 & 0.5840 \\
-    MCC & Test  & 0.0000 & 0.0019 & 0.0539 & 0.0861 & 0.0718 \\
-    \hline
-    \hline
-    \mbox{ROC AUC OVO} & Train & 0.5000 & 0.6466 & 0.7244 & 0.7093 & 0.8865 \\
-    \mbox{ROC AUC OVO} & Test  & 0.5000 & 0.5406 & 0.5036 & 0.5248 & 0.5243 \\
-    \hline
-    \hline
-    Overfit Gap & --- & -0.0030 & 0.2390 & 0.2922 & 0.1996 & 0.4792 \\
-    \hline
+    Overfit Gap & --- & -0.0122 & 0.2390 & 0.2922 & 0.1996 & 0.4792 \\
     \hline
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
-% =============== Balanced Trade Metrics ===============
+
+% =============== Model Classification Table - Max EV Labels ===============
 {
 % \setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
@@ -323,26 +313,26 @@ Below are the tables displaying performance metrics of machine learning models o
     >{\centering\arraybackslash}p{0.13\textwidth} |
     >{\centering\arraybackslash}p{0.07\textwidth} |
     >{\centering\arraybackslash}p{0.13\textwidth} |}
-\caption{ML model performance metrics -- Balanced Entropy Dist./F1 Macro Objective.\label{tab:perf_bal_f1}}\\
+\caption{ML model performance metrics -- Max EV Dist./F1 Macro Objective.\label{tab:summary_perf_max_ev_f1}}\\
 \hline
-\textbf{Metric} &
-\textbf{Set} &
-\textbf{\mbox{Buy\&Hold}} &
-\textbf{Log Reg} &
-\textbf{\mbox{Rnd Forest}} &
-\textbf{SVC} &
-\textbf{\mbox{XG Boost}} \\
+\textbf{Metric} & 
+\textbf{Set} & 
+\textbf{\mbox{Stratified}} & 
+\textbf{Log Reg} & 
+\textbf{\mbox{Rnd Forest}} & 
+\textbf{SVC} & 
+\textbf{\mbox{XGBoost}} \\
 \hline
 \endfirsthead
 
 \hline
-\textbf{Metric} &
-\textbf{Set} &
-\textbf{Buy\&Hold} &
-\textbf{Log Reg} &
-\textbf{\mbox{Rnd Forest}} &
-\textbf{SVC} &
-\textbf{\mbox{XG Boost}} \\
+\textbf{Metric} & 
+\textbf{Set} & 
+\textbf{Stratified} & 
+\textbf{Log Reg} & 
+\textbf{\mbox{Rnd Forest}} & 
+\textbf{SVC} & 
+\textbf{\mbox{XGBoost}} \\
 \hline
 \endhead
 
@@ -353,43 +343,31 @@ Below are the tables displaying performance metrics of machine learning models o
 \hline
 \endlastfoot
 
-    Accuracy & Train & 0.4497 & 0.5110 & 0.8209 & 0.6361 & 0.7363 \\
-    Accuracy & Test  & 0.4588 & 0.1926 & 0.2281 & 0.3815 & 0.3853 \\
+    Accuracy & Train & 0.4051 & 0.5110 & 0.8209 & 0.6361 & 0.7363 \\
+    Accuracy & Test  & 0.3828 & 0.1926 & 0.2281 & 0.3815 & 0.3853 \\
     \hline
+    F1 Macro & Train & 0.3448 & 0.4845 & 0.8168 & 0.6158 & 0.6570 \\
+    F1 Macro & Test  & 0.3362 & 0.1446 & 0.1990 & 0.3739 & 0.3292 \\
     \hline
-    F1 Macro & Train & 0.2068 & 0.4845 & 0.8168 & 0.6158 & 0.6570 \\
-    F1 Macro & Test  & 0.2097 & 0.1446 & 0.1990 & 0.3739 & 0.3292 \\
+    % F1 Weighted & Train & 0.4045 & 0.5215 & 0.8214 & 0.6418 & 0.7239 \\
+    % F1 Weighted & Test  & 0.3793 & 0.1012 & 0.1841 & 0.3885 & 0.3834 \\
+    % \hline
+    % Precision Macro & Train & 0.3451 & 0.4915 & 0.7950 & 0.6112 & 0.7967 \\
+    % Precision Macro & Test  & 0.3388 & 0.3805 & 0.3840 & 0.3795 & 0.3294 \\
+    % \hline
+    % Recall Macro & Train & 0.3445 & 0.5348 & 0.8544 & 0.6743 & 0.6289 \\
+    % Recall Macro & Test  & 0.3362 & 0.3597 & 0.3581 & 0.4014 & 0.3297 \\
+    % \hline
+    \mbox{Balanced Acc} & Train & 0.3445 & 0.5348 & 0.8544 & 0.6743 & 0.6289 \\
+    \mbox{Balanced Acc} & Test  & 0.3362 & 0.3597 & 0.3581 & 0.4014 & 0.3297 \\
     \hline
+    MCC & Train & 0.0007 & 0.2525 & 0.7096 & 0.4365 & 0.5436 \\
+    MCC & Test  & -0.0065 & 0.0583 & 0.0549 & 0.0699 & 0.0024 \\
     \hline
-    F1 Weighted & Train & 0.2790 & 0.5215 & 0.8214 & 0.6418 & 0.7239 \\
-    F1 Weighted & Test  & 0.2886 & 0.1012 & 0.1841 & 0.3885 & 0.3834 \\
+    \mbox{ROC AUC OVO} & Train & 0.5084 & 0.7190 & 0.9592 & 0.8306 & 0.8994 \\
+    \mbox{ROC AUC OVO} & Test  & 0.5021 & 0.5662 & 0.4780 & 0.5524 & 0.5163 \\
     \hline
-    \hline
-    \hline
-    Precision Macro & Train & 0.1499 & 0.4915 & 0.7950 & 0.6112 & 0.7967 \\
-    Precision Macro & Test  & 0.1529 & 0.3805 & 0.3840 & 0.3795 & 0.3294 \\
-    \hline
-    \hline
-    \hline
-    Recall Macro & Train & 0.3333 & 0.5348 & 0.8544 & 0.6743 & 0.6289 \\
-    Recall Macro & Test  & 0.3333 & 0.3597 & 0.3581 & 0.4014 & 0.3297 \\
-    \hline
-    \hline
-    \hline
-    \mbox{Balanced Acc} & Train & 0.3333 & 0.5348 & 0.8544 & 0.6743 & 0.6289 \\
-    \mbox{Balanced Acc} & Test  & 0.3333 & 0.3597 & 0.3581 & 0.4014 & 0.3297 \\
-    \hline
-    \hline
-    \hline
-    MCC & Train & 0.0000 & 0.2525 & 0.7096 & 0.4365 & 0.5436 \\
-    MCC & Test  & 0.0000 & 0.0583 & 0.0549 & 0.0699 & 0.0024 \\
-    \hline
-    \hline
-    \mbox{ROC AUC OVO} & Train & 0.5000 & 0.7190 & 0.9592 & 0.8306 & 0.8994 \\
-    \mbox{ROC AUC OVO} & Test  & 0.5000 & 0.5662 & 0.4780 & 0.5524 & 0.5163 \\
-    \hline
-    \hline
-    Overfit Gap & --- & -0.0029 & 0.3400 & 0.6178 & 0.2420 & 0.3278 \\
+    Overfit Gap & -- & 0.0087 & 0.3400 & 0.6178 & 0.2420 & 0.3278 \\
     \hline
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
@@ -470,14 +448,14 @@ Below are the tables displaying performance metrics of machine learning models o
 \end{figure}
 \noindent \textcolor{red}{Observation:}
 
+% =============== Model Trading Performance ===============
 \subsection{Model Trading Performance}
-% =============== TRADE METRICS ===============
-% =============== Max Ev Trade Metrics ===============
+% =============== Model Trading Table - Balanced Labels ===============
 {
 \setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
 \setlength{\LTpre}{3pt}
-\setlength{\LTpost}{-5pt}
+\setlength{\LTpost}{3pt}
 \renewcommand{\arraystretch}{0.75}
 \hyphenpenalty=50
 \begin{longtable}{|
@@ -489,7 +467,7 @@ Below are the tables displaying performance metrics of machine learning models o
     >{\centering\arraybackslash}p{0.09\textwidth} |
     >{\centering\arraybackslash}p{0.10\textwidth} |
     >{\centering\arraybackslash}p{0.075\textwidth}|}
-\caption{Trading metrics -- Max Ev Dist./F1 Macro Objective.\label{tab:trade_max_ev_f1}} \\
+\caption{Trading metrics -- Balanced Entropy Dist./F1 Macro Objective.\label{tab:summary_trade_bal_f1}} \\
 \hline
 \textbf{Metric} &
 \textbf{Set} &
@@ -509,7 +487,7 @@ Below are the tables displaying performance metrics of machine learning models o
 \textbf{\mbox{Log Reg}} &
 \textbf{\mbox{Rnd Forest}} &
 \textbf{SVC} &
-\textbf{\mbox{XG Boost}}
+\textbf{\mbox{XGBoost}}
 & \textbf{Passive} \\
 \hline
 \endhead
@@ -574,7 +552,7 @@ Calmar Ratio & Test & 0.947 & 0.281 & 2.293 & 0.913 & 1.296 & 0.947 \\
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
-% =============== Balanced Trade Metrics ===============
+% =============== Model Trading Table - Max EV Labels ===============
 {
 \setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
@@ -591,7 +569,7 @@ Calmar Ratio & Test & 0.947 & 0.281 & 2.293 & 0.913 & 1.296 & 0.947 \\
     >{\centering\arraybackslash}p{0.09\textwidth} |
     >{\centering\arraybackslash}p{0.10\textwidth} |
     >{\centering\arraybackslash}p{0.075\textwidth}|}
-\caption{Trading metrics -- Balanced Entropy Dist./F1 Macro Objective.\label{tab:trade_bal_f1}} \\
+\caption{Trading metrics -- Max EV Dist./F1 Macro Objective.\label{tab:sumary_trade_max_ev_f1}} \\
 \hline
 \textbf{Metric} &
 \textbf{Set} &
@@ -611,7 +589,7 @@ Calmar Ratio & Test & 0.947 & 0.281 & 2.293 & 0.913 & 1.296 & 0.947 \\
 \textbf{\mbox{Log Reg}} &
 \textbf{\mbox{Rnd Forest}} &
 \textbf{SVC} &
-\textbf{\mbox{XG Boost}}
+\textbf{\mbox{XGBoost}}
 & \textbf{Passive} \\
 \hline
 \endhead
