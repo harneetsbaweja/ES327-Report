@@ -182,6 +182,10 @@ Two distinct sets of model hyperparameters were optimized to assess performance 
 
     \mbox{Logistic Regression} & C & 1e-2 -- 1e2.3 & log & 337.3 & 0.02708 \\
     \hline
+    \mbox{Logistic Regression} & l1\_ratio & 0.0 -- 1.0 & linear & 0.8240 & 0.8061 \\
+    \hline
+    \mbox{Logistic Regression} & tol & \mbox{1e-5 –- 1e-2} & log & $6.6825e{-4}$ & $1.147e{-3}$ \\
+    \hline
     SVM-RBF & C & \mbox{1e-4 -- 1e3} & log & 30.63 & 76.71 \\
     \hline
     SVM-RBF & gamma & 1e-4 -- 1e1 & log & 0.003013 & $4.512e{-}4$ \\
@@ -219,12 +223,12 @@ Two distinct sets of model hyperparameters were optimized to assess performance 
 \subsection{Model Classification Performance}
 
 Below are the tables displaying performance metrics of machine learning models on training and test datasets.
-
+% =============== Max Ev Trade Metrics ===============
 {
 % \setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
 \setlength{\LTpre}{3pt}
-\setlength{\LTpost}{-5pt}
+\setlength{\LTpost}{-3pt}
 \renewcommand{\arraystretch}{0.75}
 \hyphenpenalty=50
 \begin{longtable}{|
@@ -235,7 +239,7 @@ Below are the tables displaying performance metrics of machine learning models o
     >{\centering\arraybackslash}p{0.13\textwidth} |
     >{\centering\arraybackslash}p{0.07\textwidth} |
     >{\centering\arraybackslash}p{0.13\textwidth} |}
-\caption{ML model performance metrics -- Balanced Entropy label, F1 Macro objective.\label{tab:perf_bal_f1}}\\
+\caption{ML model performance metrics -- Max EV Dist./F1 Macro objective.\label{tab:perf_max_ev_f1}}\\
 \hline
 \textbf{Metric} &
 \textbf{Set} &
@@ -303,6 +307,7 @@ Below are the tables displaying performance metrics of machine learning models o
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
+% =============== Balanced Trade Metrics ===============
 {
 % \setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
@@ -318,7 +323,7 @@ Below are the tables displaying performance metrics of machine learning models o
     >{\centering\arraybackslash}p{0.13\textwidth} |
     >{\centering\arraybackslash}p{0.07\textwidth} |
     >{\centering\arraybackslash}p{0.13\textwidth} |}
-\caption{ML model performance metrics -- Balanced Entropy label, F1 Macro objective.\label{tab:perf_bal_f1}}\\
+\caption{ML model performance metrics -- Balanced Entropy Dist./F1 Macro Objective.\label{tab:perf_bal_f1}}\\
 \hline
 \textbf{Metric} &
 \textbf{Set} &
@@ -467,6 +472,7 @@ Below are the tables displaying performance metrics of machine learning models o
 
 \subsection{Model Trading Performance}
 % =============== TRADE METRICS ===============
+% =============== Max Ev Trade Metrics ===============
 {
 \setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
@@ -480,10 +486,10 @@ Below are the tables displaying performance metrics of machine learning models o
     >{\centering\arraybackslash}p{0.12\textwidth} |
     >{\centering\arraybackslash}p{0.10\textwidth} |
     >{\centering\arraybackslash}p{0.12\textwidth} |
-    >{\centering\arraybackslash}p{0.05\textwidth} |
+    >{\centering\arraybackslash}p{0.09\textwidth} |
     >{\centering\arraybackslash}p{0.10\textwidth} |
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.13\textwidth}|}
-\caption{Trading metrics -- Balanced F1 Macro configuration.\label{tab:trade_bal_f1}} \\
+    >{\centering\arraybackslash}p{0.075\textwidth}|}
+\caption{Trading metrics -- Max Ev Dist./F1 Macro Objective.\label{tab:trade_max_ev_f1}} \\
 \hline
 \textbf{Metric} &
 \textbf{Set} &
@@ -492,7 +498,7 @@ Below are the tables displaying performance metrics of machine learning models o
 \textbf{\mbox{Rnd Forest}} &
 \textbf{SVC} &
 \textbf{\mbox{XGBoost}}
-& \textbf{\mbox{BTC Pass.}} \\
+& \textbf{\mbox{Passive}} \\
 \hline
 \endfirsthead
 
@@ -504,7 +510,7 @@ Below are the tables displaying performance metrics of machine learning models o
 \textbf{\mbox{Rnd Forest}} &
 \textbf{SVC} &
 \textbf{\mbox{XG Boost}}
-& \textbf{BTC Pass.} \\
+& \textbf{Passive} \\
 \hline
 \endhead
 
@@ -568,66 +574,82 @@ Calmar Ratio & Test & 0.947 & 0.281 & 2.293 & 0.913 & 1.296 & 0.947 \\
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
-
-
+% =============== Balanced Trade Metrics ===============
 {
-% \setlength{\LTleft}{-5pt}
+\setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
+% \setlength{\LTpre}{3pt}
+\setlength{\LTpost}{-5pt}
 \renewcommand{\arraystretch}{0.75}
 \hyphenpenalty=50
-\begin{longtable}{
-    |>{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.15\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.04\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.06\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth}|
-    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.06\textwidth}|}
-\caption{Trading metrics -- Max EV F1 Macro configuration.\label{tab:trade_max_ev_f1}} \\
+\begin{longtable}{|
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.15\textwidth} |
+    >{\centering\arraybackslash}p{0.05\textwidth} |
+    >{\centering\arraybackslash}p{0.12\textwidth} |
+    >{\centering\arraybackslash}p{0.10\textwidth} |
+    >{\centering\arraybackslash}p{0.12\textwidth} |
+    >{\centering\arraybackslash}p{0.09\textwidth} |
+    >{\centering\arraybackslash}p{0.10\textwidth} |
+    >{\centering\arraybackslash}p{0.075\textwidth}|}
+\caption{Trading metrics -- Balanced Entropy Dist./F1 Macro Objective.\label{tab:trade_bal_f1}} \\
 \hline
-\textbf{Metric} & \textbf{Set} & \textbf{Strat.} & \textbf{Buy\newline \&Hold} & \textbf{Log Reg} & \textbf{Rnd F.} & \textbf{SVC} & \textbf{XGB} & \textbf{BTC Pass.} \\
+\textbf{Metric} &
+\textbf{Set} &
+\textbf{\mbox{Buy\&Hold}} &
+\textbf{\mbox{Log Reg}} &
+\textbf{\mbox{Rnd Forest}} &
+\textbf{SVC} &
+\textbf{\mbox{XGBoost}}
+& \textbf{\mbox{Passive}} \\
 \hline
 \endfirsthead
 
 \hline
-\textbf{Metric} & \textbf{Set} & \textbf{Strat.} & \textbf{Buy\newline \&Hold} & \textbf{Log Reg} & \textbf{Rnd F.} & \textbf{SVC} & \textbf{XGB} & \textbf{BTC Pass.} \\
+\textbf{Metric} &
+\textbf{Set} &
+\textbf{\mbox{Buy\&Hold}} &
+\textbf{\mbox{Log Reg}} &
+\textbf{\mbox{Rnd Forest}} &
+\textbf{SVC} &
+\textbf{\mbox{XG Boost}}
+& \textbf{Passive} \\
 \hline
 \endhead
 
-\hline \multicolumn{9}{r}{Continued on next page} \\
+\hline \multicolumn{8}{r}{Continued on next page} \\
 \endfoot
 \hline
 \endlastfoot
-\mbox{Trade Count} & Train & 1428 & 3182 & 968 & 1290 & 1019 & 1530 & --- \\\hline\hline
-\mbox{Trade Count} & Test & 351 & 789 & 4 & 95 & 279 & 355 & 789 \\\hline\hline
-\mbox{Trade Freq \%} & Train & 44.9 & 100.0 & 30.4 & 40.5 & 32.0 & 48.1 & --- \\\hline\hline
-\mbox{Trade Freq \%} & Test & 44.5 & 100.0 & 0.5 & 12.0 & 35.4 & 45.0 & 100.0 \\\hline\hline
-\mbox{Win Rate} & Train & 0.595 & 0.602 & 0.733 & 0.929 & 0.860 & 0.815 & --- \\\hline\hline
-\mbox{Win Rate} & Test & 0.598 & 0.601 & 0.750 & 0.642 & 0.627 & 0.586 & 0.601 \\\hline\hline
-\mbox{Profit Factor} & Train & 1.354 & 1.330 & 3.173 & 24.884 & 9.658 & 3.743 & --- \\\hline\hline
-\mbox{Profit Factor} & Test & 1.309 & 1.251 & 4.937 & 1.880 & 1.539 & 1.257 & 1.251 \\\hline\hline
-\mbox{Avg Win \%} & Train & 5.668 & 5.705 & 6.095 & 6.901 & 6.878 & 6.827 & --- \\\hline\hline
-\mbox{Avg Win \%} & Test & 4.122 & 4.106 & 4.506 & 5.478 & 4.101 & 4.120 & 4.106 \\\hline\hline
-\mbox{Avg Loss \%} & Train & 6.139 & 6.490 & 5.285 & 3.654 & 4.362 & 8.037 & --- \\\hline\hline
-\mbox{Avg Loss \%} & Test & 4.690 & 4.937 & 2.738 & 5.227 & 4.485 & 4.638 & 4.937 \\\hline\hline
-\mbox{Cum Return \%} & Train & 5.2e+7 & 4.0e+11 & 7.0e+15 & 9.3e+36 & 1.7e+26 & 7.4e+28 & --- \\\hline\hline
-\mbox{Cum Return \%} & Test & 39063 & 157358 & 1096 & 29691 & 76901 & 25541 & 1574 \\\hline\hline
-\mbox{Sharpe Ratio} & Train & 1.523 & 2.143 & 4.696 & 11.475 & 8.148 & 6.961 & --- \\\hline\hline
-\mbox{Sharpe Ratio} & Test & 1.466 & 1.815 & 0.831 & 1.751 & 2.051 & 1.220 & 1.815 \\\hline\hline
-\mbox{Sortino Ratio} & Train & 2.147 & 2.957 & 8.826 & 63.315 & 26.583 & 12.439 & --- \\\hline\hline
-\mbox{Sortino Ratio} & Test & 2.122 & 2.542 & 2.678 & 2.787 & 3.118 & 1.709 & 2.542 \\\hline\hline
-\mbox{Expected Value} & Train & 0.0088 & 0.0085 & 0.0306 & 0.0616 & 0.0530 & 0.0408 & --- \\\hline\hline
-\mbox{Expected Value} & Test & 0.0058 & 0.0050 & 0.0270 & 0.0165 & 0.0090 & 0.0049 & --- \\\hline\hline
-\mbox{Wrong$+1$ loss\%} & Train & 6.139 & 6.490 & 5.285 & 3.654 & 4.362 & 8.037 & --- \\\hline\hline
-\mbox{Wrong$+1$ loss\%} & Test & 4.690 & 4.937 & 2.738 & 5.227 & 4.485 & 4.638 &  \\\hline\hline
-\mbox{Max Drawdown} & Train & -0.995 & -1.000 & -0.727 & -0.230 & -0.427 & -0.823 & --- \\\hline\hline
-\mbox{Max Drawdown} & Test & -0.755 & -0.939 & -0.027 & -0.499 & -0.560 & -0.867 & -0.939 \\\hline\hline
-\mbox{Calmar Ratio} & Train & 0.975 & 3.002 & 10.543 & 1769 & 133 & 112 & --- \\\hline\hline
-\mbox{Calmar Ratio} & Test & 0.877 & 1.553 & 1.234 & 1.109 & 1.777 & 0.576 & 1.553 \\\hline\hline
+
+\mbox{Trade Count} & Train & 3182 & 968 & 1290 & 1019 & 1530 & --- \\\hline\hline
+\mbox{Trade Count} & Test & 789 & 4 & 95 & 279 & 355 & 789 \\\hline\hline
+\mbox{Trade Freq \%} & Train & 100.0 & 30.4 & 40.5 & 32.0 & 48.1 & --- \\\hline\hline
+\mbox{Trade Freq \%} & Test & 100.0 & 0.5 & 12.0 & 35.4 & 45.0 & 100.0 \\\hline\hline
+\mbox{Win Rate} & Train & 0.602 & 0.733 & 0.929 & 0.860 & 0.815 & --- \\\hline\hline
+\mbox{Win Rate} & Test & 0.601 & 0.750 & 0.642 & 0.627 & 0.586 & 0.601 \\\hline\hline
+\mbox{Profit Factor} & Train & 1.330 & 3.173 & 24.884 & 9.658 & 3.743 & --- \\\hline\hline
+\mbox{Profit Factor} & Test & 1.251 & 4.937 & 1.880 & 1.539 & 1.257 & 1.251 \\\hline\hline
+\mbox{Avg Win \%} & Train & 5.705 & 6.095 & 6.901 & 6.878 & 6.827 & --- \\\hline\hline
+\mbox{Avg Win \%} & Test & 4.106 & 4.506 & 5.478 & 4.101 & 4.120 & 4.106 \\\hline\hline
+\mbox{Avg Loss \%} & Train & 6.490 & 5.285 & 3.654 & 4.362 & 8.037 & --- \\\hline\hline
+\mbox{Avg Loss \%} & Test & 4.937 & 2.738 & 5.227 & 4.485 & 4.638 & 4.937 \\\hline\hline
+\mbox{Cum Return \%} & Train & 4.0e+11 & 7.0e+15 & 9.3e+36 & 1.7e+26 & 7.4e+28 & --- \\\hline\hline
+\mbox{Cum Return \%} & Test & 157358 & 1096 & 29691 & 76901 & 25541 & 1574 \\\hline\hline
+\mbox{Sharpe Ratio} & Train & 2.143 & 4.696 & 11.475 & 8.148 & 6.961 & --- \\\hline\hline
+\mbox{Sharpe Ratio} & Test & 1.815 & 0.831 & 1.751 & 2.051 & 1.220 & 1.815 \\\hline\hline
+\mbox{Sortino Ratio} & Train & 2.957 & 8.826 & 63.315 & 26.583 & 12.439 & --- \\\hline\hline
+\mbox{Sortino Ratio} & Test & 2.542 & 2.678 & 2.787 & 3.118 & 1.709 & 2.542 \\\hline\hline
+\mbox{Expected Value} & Train & 0.0085 & 0.0306 & 0.0616 & 0.0530 & 0.0408 & --- \\\hline\hline
+\mbox{Expected Value} & Test & 0.0050 & 0.0270 & 0.0165 & 0.0090 & 0.0049 & --- \\\hline\hline
+\mbox{Wrong$+1$ loss\%} & Train & 6.490 & 5.285 & 3.654 & 4.362 & 8.037 & --- \\\hline\hline
+\mbox{Wrong$+1$ loss\%} & Test & 4.937 & 2.738 & 5.227 & 4.485 & 4.638 &  \\\hline\hline
+\mbox{Max Drawdown} & Train & -1.000 & -0.727 & -0.230 & -0.427 & -0.823 & --- \\\hline\hline
+\mbox{Max Drawdown} & Test & -0.939 & -0.027 & -0.499 & -0.560 & -0.867 & -0.939 \\\hline\hline
+\mbox{Calmar Ratio} & Train & 3.002 & 10.543 & 1769 & 133 & 112 & --- \\\hline\hline
+\mbox{Calmar Ratio} & Test & 1.553 & 1.234 & 1.109 & 1.777 & 0.576 & 1.553 \\\hline\hline
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
+
 
 \subsection{Feature Importance}
