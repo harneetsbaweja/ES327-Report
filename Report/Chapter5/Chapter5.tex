@@ -1,3 +1,10 @@
 % !TEX root =  ../Report.tex
 \section{Discussion \& Analysis}
 \label{sec: Discussion}
+
+% =============== Triple Barrier Parameter Trade-off ===============
+\subsection{Triple Barrier Parameter Trade-off}
+The contour plot analysis (Figures \ref{fig:res tp contour} and \ref{fig:res tp contour entropy}) reveals a paradox: the regions of maximum Expected Value (profitability) and maximum Shannon Entropy (class balance) are geographically distinct in the parameter search space. High-entropy configurations (tighter barriers) provide the most balanced training signals, which will likely improve the F1 Macro score by reducing majority-class bias. However, these configurations coincide with a lower Expected Value, suggesting that the model is being trained to identify balanced but low-profitability signals. Conversely, the high-EV zone ($profit\_mult \approx 1.5$) exhibits lower entropy, indicating a drift toward class imbalance where the +1 label dominates.
+The dense concentration of TPE trial points (black dots) in the upper-left quadrant of both contours confirms that the sampler correctly identified this constrained region as the feasible optimum given the entropy floor, rather than converging on the unconstrained global maximum that might produce degenerate label distribution.\\
+The entropy floor at $H \geq 0.85$ is not a compromise imposed on the EV objective; it is the constraint that reduces the risk of failed F1 calculation due to division by zero when the minority class is missing from cross-validation (CV) folds, making the final model sensitive to the specific folds of data \cite{lopezdepradoAdvancesFinancialMachine2018}.\\
+The practical consequence is that the label asymmetry imposed at this step propagates through the entire pipeline: Boruta's importance scores are conditioned on the label distribution they observe, which alters the selection of features that carry statistically significant predictive signals.
