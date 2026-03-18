@@ -4,7 +4,7 @@
 
 \subsection{Optimising Triple Barrier parameters}
 % =============== Triple Barrier ===============
-Heatmap of the objective metric (expected value (EV) of +1 label) across the (profit target × stop loss) multipliers.
+Heatmap of the objective metric (expected value (EV) of +1 label) across the (profit target × stop loss) multipliers. The colour gradient is a measure of objective, where darker means higher value of EV.
 % =============== Contour Plots ===============
 {
   % \setlength{\intextsep}{-5pt}      % space after figure  
@@ -28,7 +28,7 @@ Heatmap of the objective metric (expected value (EV) of +1 label) across the (pr
 \end{minipage}
 \end{figure}
 }
-The EV contour (Figure \ref{fig:res tp contour}) shows maximum expected value concentrated in regions low profit multiplier $\lambda_p \in [0.8, 1.5]$ and mid-range stop multiplier $\lambda_s \in [2.0, 2.8]$. Most Optuna trials cluster in this region (dense black dots top-left), confirming TPE converged correctly.
+\noindent The EV contour (Figure \ref{fig:res tp contour}) shows maximum expected value concentrated in regions low profit multiplier $\lambda_p \in [0.8, 1.5]$ and mid-range stop multiplier $\lambda_s \in [2.0, 2.8]$. Most Optuna trials cluster in this region (dense black dots top-left), confirming TPE converged correctly.
 \noindent The entropy contour shows entropy rising as profit\_mult increases. The bottom-right region appears to have high entropy; the floor constraint of 0.85 likely cut the low-entropy region. The Max EV optimum at $(\lambda_p=1.25, \lambda_s=2.8)$ sits just inside the valid entropy region, producing an asymmetric label distribution (Table \ref{tab:res tp parameters}) in which the stop-loss class (-1) constitutes only 12.3\% of training labels — less than half the frequency of either other class. 
 % =============== Triple Barrier Table ===============
 {  
@@ -220,7 +220,7 @@ Two distinct sets of model hyperparameters were optimised to assess performance 
 \noindent Logistic Regression exhibits a four-order-of-magnitude divergence in C across label configurations (Max EV: 337.3; Balanced: 0.027), whilst both configurations converge to a Lasso-dominant Elastic Net mix (l1\_ratio: Max EV 0.824; Balanced 0.806). SVM-RBF selects markedly different gamma values (Max EV: $3.01 \times 10^{-3}$; Balanced: $4.51 \times 10^{-4}$) alongside a higher C under Balanced labels (76.71 vs 30.63). Random Forest selects near-maximal min\_samples\_leaf values across both configurations (Max EV: 19; Balanced: 18), whilst max\_depth diverges substantially (Max EV: 11; Balanced: 3). XGBoost and Logistic Regression both select Lasso-dominant regularisation under Balanced labels (reg\_alpha = 6.916, reg\_lambda = 0.003).
 % =============== Model Classification Performance ===============
 \subsection{Model Classification Performance}
-Below are the tables summarised displaying performance metrics of machine learning models on training and test datasets. Full tables can be found in Appendix \ref{app: Model Classification Performance}.
+Below are the tables summarising key performance metrics of machine learning models on training and test datasets. Full tables can be found in Appendix \ref{app: Model Classification Performance}.
 % =============== Model Classification Table - Balanced Labels ===============
 {
 % \setlength{\LTleft}{-5pt}
@@ -296,7 +296,6 @@ Below are the tables summarised displaying performance metrics of machine learni
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
-
 % =============== Model Classification Table - Max EV Labels ===============
 {
 % \setlength{\LTleft}{-5pt}
@@ -372,84 +371,89 @@ Below are the tables summarised displaying performance metrics of machine learni
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
+\noindent Across both label configurations (Balanced Entropy and Max EV), the machine learning models consistently demonstrated higher performance on training data compared to the held-out test set, with the XGBoost and Random Forest models exhibiting the largest training accuracies at 0.7231 and 0.8209, respectively. SVC achieved the best test F1 Macro (Balanced: 0.315; Max EV: 0.374), MCC (Balanced: 0.086; Max EV: 0.070), and Balanced Accuracy (Balanced: 0.369; Max EV: 0.401), consistently outperforming all other models on unseen data.\\
+In the Balanced Entropy distribution (Table \ref{tab:summary_perf_bal_f1}), the overfit gap was largest for XGBoost (0.4792), followed by Random Forest (0.2922), Logistic Regression (0.2390), and SVC (0.1996); the Stratified baseline recorded almost no overfit gap (-0.0122), consistent with a non-learning model.\\
+The Random Forest model under the Max EV objective displayed the most significant divergence between sets, with a training MCC of 0.7096 falling to a test MCC of 0.0549, resulting in an Overfit Gap of 0.6178. Consistent across both experiments, the ROC AUC OVO for all models on the test sets remained near the 0.47–0.56 range, representing a marginal improvement over the random stratified baseline.
 
 % =============== CONFUSION MATRICES ===============
-\noindent Below are the confusion matrices for all the models. XGBoost labels are mapped as follows $-1 \rightarrow 0, 0 \rightarrow 1$ and $1 \rightarrow 2$:
+\noindent Below are the confusion matrices for all the models. All values are row-normalised (proportion of each true class predicted as each class). Label mapping: -1 = stop-loss hit, 0 = neutral/timeout, 1 = profit target hit. XGBoost labels are mapped as follows $-1 \rightarrow 0, 0 \rightarrow 1$ and $1 \rightarrow 2$:
 \begin{figure}[H]
   \centering
-  \begin{minipage}{0.47\textwidth}
+  \begin{subfigure}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_log.png}
-    \captionof{figure}{Max EV F1 Macro}
+    \caption{Max EV F1 Macro}
     \label{fig:cm_log_f1}
-  \end{minipage}\hfill
-  \begin{minipage}{0.47\textwidth}
+  \end{subfigure}\hfill
+  \begin{subfigure}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_log.png}
-    \captionof{figure}{Balanced F1 Macro}
-    \label{fig:cm_log_bal}
-  \end{minipage}
+    \caption{Balanced F1 Macro}
+    \label{fig:cm_log_bal_f1}
+  \end{subfigure}
   \caption{Logistic Regression confusion matrices}
   \label{fig:cm_logistic_regression}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \begin{minipage}{0.47\textwidth}
+  \begin{subfigure}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_rf.png}
-    \captionof{figure}{Max EV F1 Macro}
+    \caption{Max EV F1 Macro}
     \label{fig:cm_rf_f1}
-  \end{minipage}\hfill
-  \begin{minipage}{0.47\textwidth}
+  \end{subfigure}\hfill
+  \begin{subfigure}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_rf.png}
-    \captionof{figure}{Balanced F1 Macro}
-    \label{fig:cm_rf_bal}
-  \end{minipage}
+    \caption{Balanced F1 Macro}
+    \label{fig:cm_rf_bal_f1}
+  \end{subfigure}
   \caption{Random Forest confusion matrices}
   \label{fig:cm_random_forest}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \begin{minipage}{0.47\textwidth}
+  \begin{subfigure}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_svc.png}
-    \captionof{figure}{Max EV F1 Macro}
+    \caption{Max EV F1 Macro}
     \label{fig:cm_svc_f1}
-  \end{minipage}\hfill
-  \begin{minipage}{0.47\textwidth}
+  \end{subfigure}\hfill
+  \begin{subfigure}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_svc.png}
-    \captionof{figure}{Balanced F1 Macro}
-    \label{fig:cm_svc_bal}
-  \end{minipage}
+    \caption{Balanced F1 Macro}
+    \label{fig:cm_svc_bal_f1}
+  \end{subfigure}
   \caption{SVM confusion matrices}
   \label{fig:cm_svc}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \begin{minipage}{0.47\textwidth}
+  \begin{subfigure}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_xgboost.png}
-    \captionof{figure}{Max EV F1 Macro}
+    \caption{Max EV F1 Macro}
     \label{fig:cm_xgb_f1}
-  \end{minipage}\hfill
-  \begin{minipage}{0.47\textwidth}
+  \end{subfigure}\hfill
+  \begin{subfigure}{0.47\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_xgboost.png}
-    \captionof{figure}{Balanced F1 Macro}
-    \label{fig:cm_xgb_bal}
-  \end{minipage}
+    \caption{Balanced F1 Macro}
+    \label{fig:cm_xgb_bal_f1}
+  \end{subfigure}
   \caption{XGBoost confusion matrices}
   \label{fig:cm_xgboost}
 \end{figure}
-\noindent \textcolor{red}{Observation:}
-
+\noindent The confusion matrices reveal three distinct failure modes across all eight model–configuration pairs. Under the balanced entropy configuration, Logistic Regression, Random Forest, and XGBoost each collapse to predicting the stop-loss class for 91–100\% of test observations (Figures \ref{fig:cm_log_bal_f1}, \ref{fig:cm_rf_bal_f1}, \ref{fig:cm_xgb_bal_f1}), despite \texttt{class\_weight=balanced} upweighting minority classes during training. SVC under balanced entropy is the only model to produce non-trivial predictions across all three classes (Figure \ref{fig:cm_svc_bal_f1}), achieving diagonal values of 0.86, 0.06, and 0.18 for the stop-loss, neutral, and profit classes, respectively, though the neutral class recall of 6.1\% indicates the near-linear decision boundary cannot resolve the central region of the feature space.\\
+Under the Max EV configuration, Logistic Regression and Random Forest retain the stop-loss collapse (Figures \ref{fig:cm_log_f1}, \ref{fig:cm_rf_f1}), while XGBoost reverses entirely, distributing 82–88\% of predictions between the neutral and profit classes and virtually never predicting stop-loss (Figure \ref{fig:cm_xgb_f1}). SVC under Max EV produces the best confusion matrix in the entire experiment set (Figure \ref{fig:cm_svc_f1}), with diagonal values of 0.48, 0.37, and 0.36, representing the only instance of genuine three-class discrimination across all configurations and directly explaining its superior test F1 Macro of 0.374 and MCC of 0.070.
 % =============== Model Trading Performance ===============
 \subsection{Model Trading Performance}
+Below are the tables summarising key adjusted risk metrics of machine learning models on
+training and test datasets. Full tables can be found in Appendix \ref{app: Model Trading Performance}.
 % =============== Model Trading Table - Balanced Labels ===============
 {
 \setlength{\LTleft}{-5pt}
@@ -498,57 +502,31 @@ Below are the tables summarised displaying performance metrics of machine learni
 \endlastfoot
 
 \mbox{Trade Count} & Train & 3182 & 882 & 1009 & 836 & 1148 & --- \\
-\mbox{Trade Count} & Test & 789 & 2 & 25 & 119 & 45 & 789 \\
-\hline\hline
-
+\mbox{Trade Count} & Test & 789 & 2 & 25 & 119 & 45 & 789 \\\hline
 \mbox{Trade Freq\%} & Train & 100.0 & 27.7 & 31.7 & 26.3 & 36.1 & --- \\
-\mbox{Trade Freq\%} & Test & 100.0 & 0.3 & 3.2 & 15.1 & 5.7 & 100.0 \\
-\hline\hline
-
-Win Rate & Train & 0.539 & 0.624 & 0.679 & 0.718 & 0.836 & --- \\
-Win Rate & Test & 0.498 & 0.500 & 0.640 & 0.580 & 0.578 & 0.498 \\
-\hline\hline
-
-\mbox{Profit Factor} & Train & 1.317 & 1.899 & 2.650 & 3.412 & 7.579 & --- \\
-\mbox{Profit Factor} & Test & 1.184 & 1.986 & 3.216 & 1.590 & 2.026 & 1.184 \\
-\hline\hline
-
-\mbox{Avg Win \%} & Train & 6.270 & 7.139 & 7.644 & 7.826 & 7.927 & --- \\
-\mbox{Avg Win \%} & Test & 4.750 & 9.320 & 5.505 & 4.457 & 5.296 & 4.750 \\
-\hline\hline
-
-\mbox{Avg Loss \%} & Train & 5.565 & 6.229 & 6.099 & 5.831 & 5.341 & --- \\
-\mbox{Avg Loss \%} & Test & 3.980 & 4.693 & 3.043 & 3.869 & 3.577 & 3.980 \\
-\hline\hline
-
-\mbox{Cum Return \%} & Train & 4.3e+11 & 8.0e+10 & 5.4e+16 & 1.6e+17 & 9.1e+30 & --- \\
-\mbox{Cum Return \%} & Test & 59748 & 419 & 7744 & 17316 & 8904 & 597 \\
-\hline\hline
-
+\mbox{Trade Freq\%} & Test & 100.0 & 0.3 & 3.2 & 15.1 & 5.7 & 100.0 \\\hline
+% Win Rate & Train & 0.539 & 0.624 & 0.679 & 0.718 & 0.836 & --- \\
+% Win Rate & Test & 0.498 & 0.500 & 0.640 & 0.580 & 0.578 & 0.498 \\\hline
+% \mbox{Profit Factor} & Train & 1.317 & 1.899 & 2.650 & 3.412 & 7.579 & --- \\
+% \mbox{Profit Factor} & Test & 1.184 & 1.986 & 3.216 & 1.590 & 2.026 & 1.184 \\\hline
+% \mbox{Avg Win \%} & Train & 6.270 & 7.139 & 7.644 & 7.826 & 7.927 & --- \\
+% \mbox{Avg Win \%} & Test & 4.750 & 9.320 & 5.505 & 4.457 & 5.296 & 4.750 \\\hline
+% \mbox{Avg Loss \%} & Train & 5.565 & 6.229 & 6.099 & 5.831 & 5.341 & --- \\
+% \mbox{Avg Loss \%} & Test & 3.980 & 4.693 & 3.043 & 3.869 & 3.577 & 3.980 \\\hline
+% \mbox{Cum Return \%} & Train & 4.3e+11 & 8.0e+10 & 5.4e+16 & 1.6e+17 & 9.1e+30 & --- \\
+% \mbox{Cum Return \%} & Test & 59748 & 419 & 7744 & 17316 & 8904 & 597 \\\hline
 \mbox{Sharpe Ratio} & Train & 2.159 & 2.705 & 4.333 & 4.791 & 8.390 & --- \\
-\mbox{Sharpe Ratio} & Test & 1.419 & 0.302 & 1.581 & 1.479 & 1.353 & 1.419 \\
-\hline\hline
-
+\mbox{Sharpe Ratio} & Test & 1.419 & 0.302 & 1.581 & 1.479 & 1.353 & 1.419 \\\hline
 \mbox{Sortino Ratio} & Train & 3.350 & 4.819 & 8.725 & 10.761 & 25.350 & --- \\
-\mbox{Sortino Ratio} & Test & 2.235 & 0.671 & 3.543 & 2.527 & 2.494 & 2.235 \\
-\hline\hline
-
+\mbox{Sortino Ratio} & Test & 2.235 & 0.671 & 3.543 & 2.527 & 2.494 & 2.235 \\\hline
 \mbox{Expected Value} & Train & 0.0081 & 0.0211 & 0.0323 & 0.0397 & 0.0575 & --- \\
-\mbox{Expected Value} & Test & 0.0037 & 0.0231 & 0.0243 & 0.0096 & 0.0155 & --- \\
-\hline\hline
-
+\mbox{Expected Value} & Test & 0.0037 & 0.0231 & 0.0243 & 0.0096 & 0.0155 & --- \\\hline
 \mbox{Wrong$+1$ loss\%} & Train & 5.565 & 6.229 & 6.099 & 5.831 & 5.341 & --- \\
-\mbox{Wrong$+1$ loss\%} & Test & 3.980 & 4.693 & 3.043 & 3.869 & 3.577 & --- \\
-\hline\hline
-
-\mbox{Max Drawdown} & Train & -0.998 & -0.865 & -0.763 & \mbox{-0.730} & -0.564 & --- \\
-\mbox{Max Drawdown} & Test & -0.908 & -0.047 & -0.088 & \mbox{-0.414} & -0.174 & -0.908 \\
-\hline\hline
-
+\mbox{Wrong$+1$ loss\%} & Test & 3.980 & 4.693 & 3.043 & 3.869 & 3.577 & --- \\\hline
+\mbox{Max DD\%} & Train & -99.8 & -86.5 & -76.3 & \mbox{-73.0} & -56.4 & --- \\
+\mbox{Max DD\%} & Test & -90.8 & -4.7 & -8.8 & \mbox{-41.4} & -17.4 & -90.8 \\\hline
 Calmar Ratio & Train & 3.026 & 2.918 & 12.055 & 13.847 & 240.332 & --- \\
-Calmar Ratio & Test & 0.947 & 0.281 & 2.293 & 0.913 & 1.296 & 0.947 \\
-
-\hline
+Calmar Ratio & Test & 0.947 & 0.281 & 2.293 & 0.913 & 1.296 & 0.947 \\\hline
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
@@ -599,35 +577,35 @@ Calmar Ratio & Test & 0.947 & 0.281 & 2.293 & 0.913 & 1.296 & 0.947 \\
 \hline
 \endlastfoot
 
-\mbox{Trade Count} & Train & 3182 & 968 & 1290 & 1019 & 1530 & --- \\\hline\hline
-\mbox{Trade Count} & Test & 789 & 4 & 95 & 279 & 355 & 789 \\\hline\hline
-\mbox{Trade Freq \%} & Train & 100.0 & 30.4 & 40.5 & 32.0 & 48.1 & --- \\\hline\hline
-\mbox{Trade Freq \%} & Test & 100.0 & 0.5 & 12.0 & 35.4 & 45.0 & 100.0 \\\hline\hline
-\mbox{Win Rate} & Train & 0.602 & 0.733 & 0.929 & 0.860 & 0.815 & --- \\\hline\hline
-\mbox{Win Rate} & Test & 0.601 & 0.750 & 0.642 & 0.627 & 0.586 & 0.601 \\\hline\hline
-\mbox{Profit Factor} & Train & 1.330 & 3.173 & 24.884 & 9.658 & 3.743 & --- \\\hline\hline
-\mbox{Profit Factor} & Test & 1.251 & 4.937 & 1.880 & 1.539 & 1.257 & 1.251 \\\hline\hline
-\mbox{Avg Win \%} & Train & 5.705 & 6.095 & 6.901 & 6.878 & 6.827 & --- \\\hline\hline
-\mbox{Avg Win \%} & Test & 4.106 & 4.506 & 5.478 & 4.101 & 4.120 & 4.106 \\\hline\hline
-\mbox{Avg Loss \%} & Train & 6.490 & 5.285 & 3.654 & 4.362 & 8.037 & --- \\\hline\hline
-\mbox{Avg Loss \%} & Test & 4.937 & 2.738 & 5.227 & 4.485 & 4.638 & 4.937 \\\hline\hline
-\mbox{Cum Return \%} & Train & 4.0e+11 & 7.0e+15 & 9.3e+36 & 1.7e+26 & 7.4e+28 & --- \\\hline\hline
-\mbox{Cum Return \%} & Test & 157358 & 1096 & 29691 & 76901 & 25541 & 1574 \\\hline\hline
-\mbox{Sharpe Ratio} & Train & 2.143 & 4.696 & 11.475 & 8.148 & 6.961 & --- \\\hline\hline
-\mbox{Sharpe Ratio} & Test & 1.815 & 0.831 & 1.751 & 2.051 & 1.220 & 1.815 \\\hline\hline
-\mbox{Sortino Ratio} & Train & 2.957 & 8.826 & 63.315 & 26.583 & 12.439 & --- \\\hline\hline
-\mbox{Sortino Ratio} & Test & 2.542 & 2.678 & 2.787 & 3.118 & 1.709 & 2.542 \\\hline\hline
-\mbox{Expected Value} & Train & 0.0085 & 0.0306 & 0.0616 & 0.0530 & 0.0408 & --- \\\hline\hline
-\mbox{Expected Value} & Test & 0.0050 & 0.0270 & 0.0165 & 0.0090 & 0.0049 & --- \\\hline\hline
-\mbox{Wrong$+1$ loss\%} & Train & 6.490 & 5.285 & 3.654 & 4.362 & 8.037 & --- \\\hline\hline
-\mbox{Wrong$+1$ loss\%} & Test & 4.937 & 2.738 & 5.227 & 4.485 & 4.638 &  \\\hline\hline
-\mbox{Max Drawdown} & Train & -1.000 & -0.727 & -0.230 & -0.427 & -0.823 & --- \\\hline\hline
-\mbox{Max Drawdown} & Test & -0.939 & -0.027 & -0.499 & -0.560 & -0.867 & -0.939 \\\hline\hline
-\mbox{Calmar Ratio} & Train & 3.002 & 10.543 & 1769 & 133 & 112 & --- \\\hline\hline
-\mbox{Calmar Ratio} & Test & 1.553 & 1.234 & 1.109 & 1.777 & 0.576 & 1.553 \\\hline\hline
+\mbox{Trade Count} & Train & 3182 & 968 & 1290 & 1019 & 1530 & --- \\
+\mbox{Trade Count} & Test & 789 & 4 & 95 & 279 & 355 & 789 \\\hline
+\mbox{Trade Freq \%} & Train & 100.0 & 30.4 & 40.5 & 32.0 & 48.1 & --- \\
+\mbox{Trade Freq \%} & Test & 100.0 & 0.5 & 12.0 & 35.4 & 45.0 & 100.0 \\\hline
+% \mbox{Win Rate} & Train & 0.602 & 0.733 & 0.929 & 0.860 & 0.815 & --- \\
+% \mbox{Win Rate} & Test & 0.601 & 0.750 & 0.642 & 0.627 & 0.586 & 0.601 \\\hline
+% \mbox{Profit Factor} & Train & 1.330 & 3.173 & 24.884 & 9.658 & 3.743 & --- \\
+% \mbox{Profit Factor} & Test & 1.251 & 4.937 & 1.880 & 1.539 & 1.257 & 1.251 \\\hline
+% \mbox{Avg Win \%} & Train & 5.705 & 6.095 & 6.901 & 6.878 & 6.827 & --- \\
+% \mbox{Avg Win \%} & Test & 4.106 & 4.506 & 5.478 & 4.101 & 4.120 & 4.106 \\\hline
+% \mbox{Avg Loss \%} & Train & 6.490 & 5.285 & 3.654 & 4.362 & 8.037 & --- \\
+% \mbox{Avg Loss \%} & Test & 4.937 & 2.738 & 5.227 & 4.485 & 4.638 & 4.937 \\\hline
+% \mbox{Cum Return \%} & Train & 4.0e+11 & 7.0e+15 & 9.3e+36 & 1.7e+26 & 7.4e+28 & --- \\
+% \mbox{Cum Return \%} & Test & 157358 & 1096 & 29691 & 76901 & 25541 & 1574 \\\hline
+\mbox{Sharpe Ratio} & Train & 2.143 & 4.696 & 11.475 & 8.148 & 6.961 & --- \\
+\mbox{Sharpe Ratio} & Test & 1.815 & 0.831 & 1.751 & 2.051 & 1.220 & 1.815 \\\hline
+\mbox{Sortino Ratio} & Train & 2.957 & 8.826 & 63.315 & 26.583 & 12.439 & --- \\
+\mbox{Sortino Ratio} & Test & 2.542 & 2.678 & 2.787 & 3.118 & 1.709 & 2.542 \\\hline
+\mbox{Expected Value} & Train & 0.0085 & 0.0306 & 0.0616 & 0.0530 & 0.0408 & --- \\
+\mbox{Expected Value} & Test & 0.0050 & 0.0270 & 0.0165 & 0.0090 & 0.0049 & --- \\\hline
+\mbox{Wrong$+1$ loss\%} & Train & 6.490 & 5.285 & 3.654 & 4.362 & 8.037 & --- \\
+\mbox{Wrong$+1$ loss\%} & Test & 4.937 & 2.738 & 5.227 & 4.485 & 4.638 &  \\\hline
+\mbox{Max DD\%} & Train & -100 & -72.7 & -23.0 & -42.7 & -82.3 & --- \\
+\mbox{Max DD\%} & Test & -93.9 & -2.7 & -49.9 & -56.0 & -86.7 & -93.9 \\\hline
+\mbox{Calmar Ratio} & Train & 3.002 & 10.543 & 1769 & 133 & 112 & --- \\
+\mbox{Calmar Ratio} & Test & 1.553 & 1.234 & 1.109 & 1.777 & 0.576 & 1.553 \\\hline
 \end{longtable}
 \renewcommand{\arraystretch}{1.0}
 }
-
-
-\subsection{Feature Importance}
+\noindent Across both label configurations, all models exhibit substantial train-test degradation in every risk-adjusted metric, with some training Sortino ratios an order of magnitude above their test counterparts (Tables \ref{tab:summary_trade_bal_f1}, \ref{tab:sumary_trade_max_ev_f1}). This indicates that train-set trading performance substantially overstates test-set outcomes across all models. Logistic Regression collapses to near-zero trade frequency in both configurations (2 and 4 test trades, respectively), confirming the earlier classification finding that its decision boundary produces almost no actionable signals. The passive buy-and-hold benchmark records a test Sortino of 2.235 under balanced labels and 2.542 under Max EV, providing the threshold above which any model must perform to justify active signal generation over continuous market participation.\\
+Under the balanced entropy configuration test set (Table \ref{tab:summary_trade_bal_f1}), Random Forest produces the highest Sortino of 3.543 and the lowest max drawdown of 8.8\% across only 25 trades, demonstrating that a limited number of strategically executed trades can yield substantial returns. SVC and XGBoost both exceed the passive benchmark Sortino of 2.235 at 2.527 and 2.494 respectively, with Calmar ratios of 0.913 and 1.296 against the passive benchmark of 0.947.\\
+Under the Max EV configuration (Table \ref{tab:sumary_trade_max_ev_f1}), the train-test Sortino collapse is again universal, with Random Forest falling from 63.315 to 2.787 and XGBoost from 12.439 to 1.709—the only test result below the passive benchmark of 2.542 - whilst SVC degrades from 26.583 to 3.118, retaining the strongest risk-adjusted performance across all configurations. SVC's 279 test trades at 35.4\% frequency produce a Calmar ratio of 1.777 against the passive benchmark of 1.553, whereas XGBoost's higher trade frequency of 45.0\% yields a Calmar of only 0.576 and a max drawdown of 86.7\%, indicating that higher signal frequency does not compensate for the deterioration in trade quality at that density.
