@@ -2,10 +2,8 @@
 \section*{Abstract}
 \addcontentsline{toc}{section}{Abstract}
 \vspace{2cm}
-
-\large
-When this thing gets up to 88 mph, you're gonna see some serious s$\cdot \cdot \cdot$.\\
+Bitcoin's high volatility and non-linear market dynamics present a challenging environment for directional risk prediction. Existing approaches rely on fixed-horizon labelling schemes that conflate signal quality with label construction choices, obscuring the source of predictive edge. This project constructs a supervised machine learning pipeline applying López de Prado's triple-barrier labelling method with EWMA volatility scaling, optimised via Bayesian search under an entropy-constrained expected value objective. Four classifiers -- Logistic Regression, Support Vector Classification, Random Forest, and XGBoost -- were trained and evaluated across two label configurations (Max EV and Balanced Entropy) on a 69-feature dataset spanning 2014--2026, combining OHLCV price with CoinMetrics on-chain data. Classification performance remained near-chance across all models, with test MCC values below 0.09 and ROC AUC within 0.07 of a random classifier. SVC with Max EV labels achieved a test Sharpe ratio of 2.051 and Sortino ratio of 3.118, exceeding the buy-and-hold benchmark of 1.419 and 2.235, respectively, whilst label distribution was identified as the primary driver of pipeline behaviour across all stages. The findings suggest a narrow, regime-dependent departure from market efficiency.\\
 
 \vspace{1cm}
 
-\noindent \textit{Keywords: Flux Capacitor, 1.21 Gigawatts, Calvin Klein}
+\noindent \textit{Keywords: Bitcoin, triple-barrier labelling, supervised classification, hyperparameter tuning, feature selection, Bayesian optimisation, financial machine learning, market efficiency}
