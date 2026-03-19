@@ -13,3 +13,64 @@
     year = {2025},
     pages = {1731--1742},
 }
+@article{stroblBiasRandomForest2007,
+    title = {Bias in random forest variable importance measures: {Illustrations}, sources and a solution},
+    volume = {8},
+    issn = {1471-2105},
+    shorttitle = {Bias in random forest variable importance measures},
+    url = {https://doi.org/10.1186/1471-2105-8-25},
+    doi = {10.1186/1471-2105-8-25},
+    abstract = {Variable importance measures for random forests have been receiving increased attention as a means of variable selection in many classification tasks in bioinformatics and related scientific fields, for instance to select a subset of genetic markers relevant for the prediction of a certain disease. We show that random forest variable importance measures are a sensible means for variable selection in many applications, but are not reliable in situations where potential predictor variables vary in their scale of measurement or their number of categories. This is particularly important in genomics and computational biology, where predictors often include variables of different types, for example when predictors include both sequence data and continuous variables such as folding energy, or when amino acid sequence data show different numbers of categories.},
+    language = {en},
+    number = {1},
+    urldate = {2026-03-18},
+    journal = {BMC Bioinformatics},
+    author = {Strobl, Carolin and Boulesteix, Anne-Laure and Zeileis, Achim and Hothorn, Torsten},
+    month = jan,
+    year = {2007},
+    keywords = {Bootstrap Sampling, Importance Measure, Random Forest, Variable Importance, Variable Selection},
+    pages = {25},
+}
+@article{janitzaAUCbasedPermutationVariable2013,
+    title = {An {AUC}-based permutation variable importance measure for random forests},
+    volume = {14},
+    issn = {1471-2105},
+    url = {https://pmc.ncbi.nlm.nih.gov/articles/PMC3626572/},
+    doi = {10.1186/1471-2105-14-119},
+    abstract = {Background
+The random forest (RF) method is a commonly used tool for classification with
+high dimensional data as well as for ranking candidate predictors based on
+the so-called random forest variable importance measures (VIMs). However the
+classification performance of RF is known to be suboptimal in case of
+strongly unbalanced data, i.e. data where response class sizes differ
+considerably. Suggestions were made to obtain better classification
+performance based either on sampling procedures or on cost sensitivity
+analyses. However to our knowledge the performance of the VIMs has not yet
+been examined in the case of unbalanced response classes. In this paper we
+explore the performance of the permutation VIM for unbalanced data settings
+and introduce an alternative permutation VIM based on the area under the
+curve (AUC) that is expected to be more robust towards class imbalance.
+Results
+We investigated the performance of the standard permutation VIM and of our
+novel AUC-based permutation VIM for different class imbalance levels using
+simulated data and real data. The results suggest that the new AUC-based
+permutation VIM outperforms the standard permutation VIM for unbalanced data
+settings while both permutation VIMs have equal performance for balanced
+data settings.
+Conclusions
+The standard permutation VIM loses its ability to discriminate between
+associated predictors and predictors not associated with the response for
+increasing class imbalance. It is outperformed by our new AUC-based
+permutation VIM for unbalanced data settings, while the performance of both
+VIMs is very similar in the case of balanced classes. The new AUC-based VIM
+is implemented in the R package party for the unbiased RF variant based on
+conditional inference trees. The codes implementing our study are available
+from the companion website:
+http://www.ibe.med.uni-muenchen.de/organisation/mitarbeiter/070\_drittmittel/janitza/index.html.},
+    urldate = {2026-03-18},
+    journal = {BMC Bioinformatics},
+    author = {Janitza, Silke and Strobl, Carolin and Boulesteix, Anne-Laure},
+    month = apr,
+    year = {2013},
+    pages = {119},
+}
