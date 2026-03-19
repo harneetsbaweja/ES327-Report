@@ -12,7 +12,7 @@ Bitcoin's extreme volatility and non-stationary return distribution make it stru
 \subsection{Aim and Objectives}
 The aim of this project is to develop and evaluate a supervised machine learning pipeline capable of classifying Bitcoin market conditions by their risk/reward asymmetry, using a volatility-scaled triple-barrier labelling scheme applied to a combined dataset of technical and on-chain indicators.\\
 A secondary aim is to establish a reproducible, methodologically rigorous pipeline -- from raw data acquisition through to model evaluation -- that addresses known failure modes in financial ML, including data leakage, overlapping labels, and class imbalance.\\
-The specific objectives, prioritised using the MoSCoW framework \cite{projectmanagementinstituteBusinessAnalysisPractitioners2024} consistent with the Project Feasibility Study, are given in Table \ref{moscow}.
+The specific objectives, prioritised using the MoSCoW framework \cite{projectmanagementinstituteBusinessAnalysisPractitioners2024} consistent with the Project Feasibility Study, are given in Table \ref{tab:moscow}.
 {
 \setlength{\LTleft}{-5pt}
 \setlength{\LTright}{\fill}
@@ -45,7 +45,7 @@ Consolidated feature matrix (\texttt{labelled\_df.csv}) \\ \hline
 
 Must & O2 &
 Design and implement a triple-barrier labelling scheme with EWMA volatility scaling to produce asymmetric risk labels ($+1$, $0$, $-1$) without circular dependency on model features. &
-Labelled dataset with Optuna-optimised barrier parameters \\ \hline
+Labelled dataset with Optuna-tuned barrier parameters \\ \hline
 
 Must & O3 &
 Train and evaluate four supervised classifiers (Logistic Regression, SVC, Random Forest, XGBoost) using time-series-aware cross-validation with class imbalance mitigation. &

@@ -28,7 +28,7 @@ Heatmap of the objective metric (expected value (EV) of +1 label) across the (pr
 \end{minipage}
 \end{figure}
 }
-\noindent The EV contour (Figure \ref{fig:res tp contour}) shows maximum expected value concentrated in regions low profit multiplier $\lambda_p \in [0.8, 1.5]$ and mid-range stop multiplier $\lambda_s \in [2.0, 2.8]$. Most Optuna trials cluster in this region (dense black dots top-left), confirming TPE converged correctly.
+\noindent The EV contour (Figure \ref{fig:res tp contour}) shows maximum expected value concentrated in regions low profit multiplier $\lambda_p \in [0.8, 1.5]$ and higher-range stop multiplier $\lambda_s \in [2.0, 3.0]$. Most Optuna trials cluster in this region (dense black dots top-left), confirming TPE converged correctly.
 \noindent The entropy contour shows entropy rising as profit\_mult increases. The bottom-right region appears to have high entropy; the floor constraint of 0.85 likely cut the low-entropy region. The Max EV optimum at $(\lambda_p=1.25, \lambda_s=2.8)$ sits just inside the valid entropy region, producing an asymmetric label distribution (Table \ref{tab:res tp parameters}) in which the stop-loss class (-1) constitutes only 12.3\% of training labels — less than half the frequency of either other class. 
 % =============== Triple Barrier Table ===============
 {  
@@ -376,16 +376,16 @@ In the Balanced Entropy distribution (Table \ref{tab:summary_perf_bal_f1}), the 
 The Random Forest model under the Max EV objective displayed the most significant divergence between sets, with a training MCC of 0.7096 falling to a test MCC of 0.0549, resulting in an Overfit Gap of 0.6178. Consistent across both experiments, the ROC AUC OVO for all models on the test sets remained near the 0.47–0.56 range, representing a marginal improvement over the random stratified baseline.
 
 % =============== CONFUSION MATRICES ===============
-\noindent Below are the confusion matrices for all the models. All values are row-normalised (proportion of each true class predicted as each class). Label mapping: -1 = stop-loss hit, 0 = neutral/timeout, 1 = profit target hit. XGBoost labels are mapped as follows $-1 \rightarrow 0, 0 \rightarrow 1$ and $1 \rightarrow 2$:
+\noindent Below are the confusion matrices for all the models. All values are row-normalised (proportion of each true class predicted as each class). Label mapping: -1 = stop-loss hit, 0 = neutral/timeout, 1 = profit target hit. XGBoost labels are mapped as follows $-1 \rightarrow 0, 0 \rightarrow 1$ and $1 \rightarrow 2$. This is a downstream artefact of XGBoost requiring non-negative integer class labels. 
 \begin{figure}[H]
   \centering
-  \begin{subfigure}{0.39\textwidth}
+  \begin{subfigure}{0.42\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_log.png}
     \caption{Max EV F1 Macro}
     \label{fig:cm_log_f1}
   \end{subfigure}\hfill
-  \begin{subfigure}{0.39\textwidth}
+  \begin{subfigure}{0.42\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_log.png}
     \caption{Balanced F1 Macro}
@@ -397,13 +397,13 @@ The Random Forest model under the Max EV objective displayed the most significan
 
 \begin{figure}[H]
   \centering
-  \begin{subfigure}{0.39\textwidth}
+  \begin{subfigure}{0.42\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_rf.png}
     \caption{Max EV F1 Macro}
     \label{fig:cm_rf_f1}
   \end{subfigure}\hfill
-  \begin{subfigure}{0.39\textwidth}
+  \begin{subfigure}{0.42\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_rf.png}
     \caption{Balanced F1 Macro}
@@ -415,13 +415,13 @@ The Random Forest model under the Max EV objective displayed the most significan
 
 \begin{figure}[H]
   \centering
-  \begin{subfigure}{0.39\textwidth}
+  \begin{subfigure}{0.42\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_svc.png}
     \caption{Max EV F1 Macro}
     \label{fig:cm_svc_f1}
   \end{subfigure}\hfill
-  \begin{subfigure}{0.39\textwidth}
+  \begin{subfigure}{0.42\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_svc.png}
     \caption{Balanced F1 Macro}
@@ -433,13 +433,13 @@ The Random Forest model under the Max EV objective displayed the most significan
 
 \begin{figure}[H]
   \centering
-  \begin{subfigure}{0.39\textwidth}
+  \begin{subfigure}{0.42\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_max_ev_f1_xgboost.png}
     \caption{Max EV F1 Macro}
     \label{fig:cm_xgb_f1}
   \end{subfigure}\hfill
-  \begin{subfigure}{0.39\textwidth}
+  \begin{subfigure}{0.42\textwidth}
     \centering
     \includegraphics[width=\textwidth]{Report/Chapter4/08_model_evaluation/confusion_bal_f1_xgboost.png}
     \caption{Balanced F1 Macro}
@@ -452,8 +452,7 @@ The Random Forest model under the Max EV objective displayed the most significan
 Under the Max EV configuration, Logistic Regression and Random Forest retain the stop-loss collapse (Figures \ref{fig:cm_log_f1}, \ref{fig:cm_rf_f1}), while XGBoost reverses entirely, distributing 82–88\% of predictions between the neutral and profit classes and virtually never predicting stop-loss (Figure \ref{fig:cm_xgb_f1}). SVC under Max EV produces the best confusion matrix in the entire experiment set (Figure \ref{fig:cm_svc_f1}), with diagonal values of 0.48, 0.37, and 0.36, representing the only instance of genuine three-class discrimination across all configurations and directly explaining its superior test F1 Macro of 0.374 and MCC of 0.070.
 % =============== Model Trading Performance ===============
 \subsection{Model Trading Performance}
-Below are the tables summarising key adjusted risk metrics of machine learning models on
-training and test datasets. Full tables can be found in Appendix \ref{app: Model Trading Performance}.
+Below are the tables summarising key adjusted risk metrics of machine learning models on training and test datasets. Buy \& Hold strategy holds +1 label every day, while the Passive strategy simply reflects the growth of the initial asset from day one. Full tables can be found in Appendix \ref{app: Model Trading Performance}.
 % =============== Model Trading Table - Balanced Labels ===============
 {
 \setlength{\LTleft}{-5pt}
@@ -513,8 +512,8 @@ training and test datasets. Full tables can be found in Appendix \ref{app: Model
 % \mbox{Avg Win \%} & Test & 4.750 & 9.320 & 5.505 & 4.457 & 5.296 & 4.750 \\\hline
 % \mbox{Avg Loss \%} & Train & 5.565 & 6.229 & 6.099 & 5.831 & 5.341 & --- \\
 % \mbox{Avg Loss \%} & Test & 3.980 & 4.693 & 3.043 & 3.869 & 3.577 & 3.980 \\\hline
-\mbox{Cum Return \%} & Train & 4.3e+11 & 8.0e+10 & 5.4e+16 & 1.6e+17 & 9.1e+30 & --- \\
-\mbox{Cum Return \%} & Test & 59748 & 419 & 7744 & 17316 & 8904 & 597 \\\hline
+% \mbox{Cum Return \%} & Train & 4.3e+11 & 8.0e+10 & 5.4e+16 & 1.6e+17 & 9.1e+30 & --- \\
+% \mbox{Cum Return \%} & Test & 59748 & 419 & 7744 & 17316 & 8904 & 597 \\\hline
 \mbox{Sharpe Ratio} & Train & 2.159 & 2.705 & 4.333 & 4.791 & 8.390 & --- \\
 \mbox{Sharpe Ratio} & Test & 1.419 & 0.302 & 1.581 & 1.479 & 1.353 & 1.419 \\\hline
 \mbox{Sortino Ratio} & Train & 3.350 & 4.819 & 8.725 & 10.761 & 25.350 & --- \\
@@ -589,8 +588,8 @@ Calmar Ratio & Test & 0.947 & 0.281 & 2.293 & 0.913 & 1.296 & 0.947 \\\hline
 % \mbox{Avg Win \%} & Test & 4.106 & 4.506 & 5.478 & 4.101 & 4.120 & 4.106 \\\hline
 % \mbox{Avg Loss \%} & Train & 6.490 & 5.285 & 3.654 & 4.362 & 8.037 & --- \\
 % \mbox{Avg Loss \%} & Test & 4.937 & 2.738 & 5.227 & 4.485 & 4.638 & 4.937 \\\hline
-\mbox{Cum Return \%} & Train & 4.0e+11 & 7.0e+15 & 9.3e+36 & 1.7e+26 & 7.4e+28 & --- \\
-\mbox{Cum Return \%} & Test & 157358 & 1096 & 29691 & 76901 & 25541 & 1574 \\\hline
+% \mbox{Cum Return \%} & Train & 4.0e+11 & 7.0e+15 & 9.3e+36 & 1.7e+26 & 7.4e+28 & --- \\
+% \mbox{Cum Return \%} & Test & 157358 & 1096 & 29691 & 76901 & 25541 & 1574 \\\hline
 \mbox{Sharpe Ratio} & Train & 2.143 & 4.696 & 11.475 & 8.148 & 6.961 & --- \\
 \mbox{Sharpe Ratio} & Test & 1.815 & 0.831 & 1.751 & 2.051 & 1.220 & 1.815 \\\hline
 \mbox{Sortino Ratio} & Train & 2.957 & 8.826 & 63.315 & 26.583 & 12.439 & --- \\
