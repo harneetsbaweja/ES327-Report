@@ -4,6 +4,10 @@
 \label{sec: Project Management}
 The project was scoped in the Project Feasibility Study (PFS) to develop machine learning models that classify Bitcoin market conditions as favourable or unfavourable for trading, distinguishing high-risk scenarios (substantial downside exposure with constrained upside) from low-risk opportunities (high potential gains relative to limited downside). The original plan adopted an iterative Agile framework across Weeks 5–24 (approximately 20 working weeks), structured around 15 numbered tasks: data acquisition and preprocessing (Task 5), two successive model iterations with increasing feature complexity (Tasks 6–7), documentation throughout (Task 8), and report and SLDR drafting in the final six weeks (Tasks 9–15). In practice, the project diverged substantially from this schedule: the labelling stage alone consumed Weeks 9–18 rather than the planned three weeks, driven by two successive labelling strategy failures; a scipy.signal.find\_peaks approach that was used to generate provisional binary labels, followed by a failed integration of the mlfinpy library- before settling on a custom implementation of López de Prado's (2018) triple-barrier method \cite{lopezdepradoAdvancesFinancialMachine2018}. Consequently, the report drafting phase was compressed into the final four weeks, and two data leakage bugs identified in Week 23 required emergency pipeline corrections immediately before submission. The sections that follow document these pivots, the decisions that drove them, and the tooling and version control strategy that maintained project integrity throughout.\\
 % =============== Gantt Chart ===============
+{
+  % \setlength{\intextsep}{-5pt}      % space after figure  
+  % \setlength{\textfloatsep}{-1pt}   % space before figure
+  % \setlength{\floatsep}{-5pt}       % Space between consecutive figures
 \begin{figure}[H]
   % \hspace{-0.8cm}
 \centering
@@ -14,6 +18,7 @@ The project was scoped in the Project Feasibility Study (PFS) to develop machine
 \label{fig:project gantt chart}
 \end{minipage}
 \end{figure}
+}
 \noindent Tasks 1-4: Research, draft, \& finalise Project Feasibility Study (completed).\\
 Task 5, data download \& pre-processing, Minimum Viable Model (MVM) -
 Variance: +4 weeks. Dashboard refactor, virtual environment issues, researching and learning new libraries.
