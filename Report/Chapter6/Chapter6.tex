@@ -2,3 +2,47 @@
 
 \section{Project Management}
 \label{sec: Project Management}
+The project was scoped in the Project Feasibility Study (PFS) to develop machine learning models that classify Bitcoin market conditions as favourable or unfavourable for trading, distinguishing high-risk scenarios (substantial downside exposure with constrained upside) from low-risk opportunities (high potential gains relative to limited downside). The original plan adopted an iterative Agile framework across Weeks 5–24 (approximately 20 working weeks), structured around 15 numbered tasks: data acquisition and preprocessing (Task 5), two successive model iterations with increasing feature complexity (Tasks 6–7), documentation throughout (Task 8), and report and SLDR drafting in the final six weeks (Tasks 9–15). In practice, the project diverged substantially from this schedule: the labelling stage alone consumed Weeks 9–18 rather than the planned three weeks, driven by two successive labelling strategy failures; a scipy.signal.find\_peaks approach that was used to generate provisional binary labels, followed by a failed integration of the mlfinpy library- before settling on a custom implementation of López de Prado's (2018) triple-barrier method \cite{lopezdepradoAdvancesFinancialMachine2018}. Consequently, the report drafting phase was compressed into the final four weeks, and two data leakage bugs identified in Week 23 required emergency pipeline corrections immediately before submission. The sections that follow document these pivots, the decisions that drove them, and the tooling and version control strategy that maintained project integrity throughout.\\
+% =============== Gantt Chart ===============
+\begin{figure}[H]
+  % \hspace{-0.8cm}
+\centering
+\begin{minipage}{1\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Report/Chapter6/ES327 Report Gantt Chart.png}
+\caption{Project Gantt chart of weeks 5-24. Textured cells  - expected timeline, plain cells - actual timeline}
+\label{fig:project gantt chart}
+\end{minipage}
+\end{figure}
+\noindent Tasks 1-4: Research, draft, \& finalise Project Feasibility Study (completed).\\
+Task 5, data download \& pre-processing, Minimum Viable Model (MVM) -
+Variance: +4 weeks. Dashboard refactor, virtual environment issues, researching and learning new libraries.
+Deliverables: Trained baseline model, performance metrics, and feature expansion recommendations.\\
+Task 6, feature expansion -
+Variance: +4 weeks. Cascaded delays from previous tasks, FGI integration issues; reliable data source issues - on-chain metrics via CoinMetrics.
+Deliverables: Enhanced dataset, retrained model, comparative performance analysis.\\
+Task 7, algorithm development \& performance evaluation -
+Variance: +8 weeks. Mlfinpy failure; triple-barrier implemented from scratch; new tools (Boruta, Optuna, Quanstats, Mlflow); two data leakage bugs fixed (Wk 23).
+Deliverables: Multiple models, algorithm comparison table, best model \& justification.\\
+Task 8, Documentation - Record of methodology \& results throughout development.
+Variance: +4 weeks. Continued into the final week due to late code changes.
+Deliverables: Material for the technical report (TR).\\
+Task 9 - 10 Draft \& Final TR Write-up
+Variance: +5 weeks. Task 7 overrun.
+Deliverables: Technical Report for submission.\\
+Task 11, Technical Report - Visual representation of the project timeline.\\
+Task 12, Reflective practice - Record project plan, track progress, milestones, and reflect on any changes.
+Deliverables: Material for Self-learning and Development Record (SLDR).\\
+Task 13 - 14, Draft \& Final SLDR Write-up.
+Deliverables: SLDR for submission.\\
+Task 15, SLDR - Visual representation of the project timeline.\\
+Tasks 16 - 23, (ES3H3 Lab Assessment 1, ES3H3 Lab Assessment 2, ES3C8 Group Project, January Exams, ES3C5 Lab Assignment, ESH3 Group Project, Dance Competition, and ES3H5 Video Assignment) - In the project timeline for a transparent workload overview.
+% =============== Documented Pivots and Decisions ===============
+\subsection{Documented Pivots and Decisions}
+\label{subsec: Documented Pivots and Decision}
+This project was managed using an iterative Agile approach, as documented in the PFS, with one-to-two-week sprints and progress reviewed in weekly/fortnightly supervisor meetings recorded on Tabula. In practice, the development arc closely followed the empirical cycle described by Uysal and Akturk (2024) for ML project management: hypothesis formation, implementation, evaluation, and revision—each labelling and modelling iteration focused on measurable deliverables. Scope and task prioritisation were managed throughout using the MoSCoW framework established in the PFS, which provided a stable reference point when technical setbacks forced schedule compression in the latter half of the project. Risk materialisation, specifically the failure of a third-party dependency and the discovery of data leakage, was handled in a manner consistent with the FMEA risk matrix documented in the PFS, where model-related risks were identified as highest priority and mitigated through modular design and version control. The two pivots documented below each represent a structured response to an identified risk or finding, rather than an ad hoc deviation from the plan.
+Decision 1: Third-party dependency risk (Week 18). The mlfinpy library was selected to implement triple-barrier labelling, chosen for its direct derivation from López de Prado (2018) \cite{lopezdepradoAdvancesFinancialMachine2018}. Integration failed due to a Python version incompatibility, and an attempted remediation via pyenv corrupted the project environment entirely, requiring a full reinstallation of build tools. The decision was taken to implement the triple-barrier method from scratch rather than pursue further dependency resolution. Whilst this consumed approximately one week of scheduled development time, the outcome was a fully auditable, self-contained implementation with no external library risk -- a more robust and configurable long-term choice.\\
+\noindent Decision 2: Code freeze imposed under submission constraint (Week 24). By the final week, model test performance was not up to standard with meaningful train/test overfit gaps persisting across all four classifiers. Several enhancements were identified, Combinatorial Purged Cross-Validation, refining the search space of hyperparameters, that could plausibly have improved generalisation. The decision was taken to freeze the codebase and prioritise report completion over further iteration. This reflects a deliberate scope management judgment: marginal model improvements under time pressure carry a higher risk of introducing new bugs than producing meaningful performance gains, and the existing pipeline constitutes a complete, documented, and reproducible system suitable for the project's research objectives.
+% =============== Budget and Tools ===============
+\subsection{Budget and Tools}
+The project was delivered at zero direct financial cost. All data was sourced from free-tier APIs—Yahoo Finance via yfinance \cite{YfinancedownloadYfinance} for OHLCV price data and CoinMetrics Community \cite{coinMetrics} for on-chain metrics—with no paid subscriptions required. Development was carried out locally on personal hardware with no cloud compute expenditure. Tool selection prioritized open-source, actively maintained libraries throughout: scikit-learn \cite{pedregosaScikitlearnMachineLearning2011} for model training and pipeline construction, Optuna \cite{akibaOptunaNextgenerationHyperparameter2019} for Bayesian hyperparameter search, MLflow \cite{MLflowOpenSource} for experiment tracking and model versioning, BorutaPy \cite{MLflowOpenSource} for feature selection, and QuantStats \cite{aroussiRanaroussiQuantstats2026} for trading metric evaluation. Version control was managed via GitHub \cite{GitHub2026}, report writing via Overleaf \cite{Us}, and workflow visualization via Mermaid \cite{MermaidAIPoweredDiagramming} and draw.io \cite{Drawio}—all free at student tier. The only meaningful resource consumed was time, the allocation of which is documented in the Gantt chart above and the pivot narrative in Chapter \ref{subsec: Documented Pivots and Decision}.

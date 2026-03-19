@@ -48,7 +48,6 @@ Ta-Lib (Technical Analysis Library) is a C-based open-source library with Python
 \textbf{Storage:} Intermediate data was serialised to pickle files at each pipeline stage (01\_bitcoin\_data.pkl, 02\_engineered\_features.pkl, etc.). This pattern decouples pipeline stages, enabling independent re-execution of any notebook without re-running upstream data acquisition.
 % =============== DATA LABELLING ===============
 \subsection{Data Labelling}
-
 To implement an end-to-end pipeline before diving deep into the research and finalising how to label data, scipy.signal.find\_peaks \cite{Find_peaksSciPyV1170} was used to generate provisional binary labels marking local price maxima. This approach served as a functional placeholder.
 % =============== THREE CLASS & TRIPLE BARRIER JUSTIFICATION ===============
 \subsubsection{Justification for three classes \& Triple Barrier Approach}

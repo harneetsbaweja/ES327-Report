@@ -3,6 +3,13 @@
 
 \section{Results \& Outcomes}
 \label{app: Results}
+\subsection{Code - Repository}
+The source code for this project is hosted on GitHub and contains the full nine-notebook ML pipeline, supporting utility modules, MLflow experiment tracking configuration, and the interactive dashboard:\\
+Repository - \url{https://github.com/harneetsbaweja/ES327-bitcoin-risk-model}\\
+The repository is structured as follows:\\
+$\bullet$ nb01 -- nb09: Sequential pipeline notebooks (data ingestion to evaluation)\\
+$\bullet$ src/: Shared modules (feature engineering, triple-barrier labelling, metrics)
+
 \subsection{Feature Selection}
 % =============== Feature Selection Table ===============
 {  
@@ -570,3 +577,106 @@ Calmar Ratio & Test & 0.947 & 0.281 & 2.293 & 0.913 & 1.296 & 0.947 \\
 }
 
 \end{appendices}
+
+% =============== Shapley Features ===============
+\subsection{Shapley Feature Plots}
+\label{subsec: Shap}
+% --- Logistic Regression ---
+{
+\begin{figure}[H]
+\centering
+\begin{minipage}{1\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Report/Appendices/shap_log_reg_bal.png}
+\caption{SHAP summary plot for the Logistic Regression model: Balanced data.}
+\label{fig:shap_log_reg_bal}
+\end{minipage}
+\end{figure}
+}
+
+{
+\begin{figure}[H]
+\centering
+\begin{minipage}{1\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Report/Appendices/shap_log_reg_max_ev.png}
+\caption{SHAP summary plot for the Logistic Regression model: Maximum Expected Value.}
+\label{fig:shap_log_reg_max_ev}
+\end{minipage}
+\end{figure}
+}
+
+% --- Support Vector Classifier (SVC) ---
+{
+\begin{figure}[H]
+\centering
+\begin{minipage}{1\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Report/Appendices/shap_svc_bal.png}
+\caption{SHAP summary plot for the SVC model: Balanced data.}
+\label{fig:shap_svc_bal}
+\end{minipage}
+\end{figure}
+}
+
+{
+\begin{figure}[H]
+\centering
+\begin{minipage}{1\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Report/Appendices/shap_svc_max_ev.png}
+\caption{SHAP summary plot for the SVC model: Maximum Expected Value.}
+\label{fig:shap_svc_max_ev}
+\end{minipage}
+\end{figure}
+}
+
+% --- Random Forest (RF) ---
+{
+\begin{figure}[H]
+\centering
+\begin{minipage}{1\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Report/Appendices/shap_rf_bal.png}
+\caption{SHAP summary plot for the Random Forest model: Balanced data.}
+\label{fig:shap_rf_bal}
+\end{minipage}
+\end{figure}
+}
+
+{
+\begin{figure}[H]
+\centering
+\begin{minipage}{1\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Report/Appendices/shap_rf_max_ev.png}
+\caption{SHAP summary plot for the Random Forest model: Maximum Expected Value.}
+\label{fig:shap_rf_max_ev}
+\end{minipage}
+\end{figure}
+}
+
+% --- XGBoost ---
+{
+\begin{figure}[H]
+\centering
+\begin{minipage}{1\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Report/Appendices/shap_xgboost_bal.png}
+\caption{SHAP summary plot for the XGBoost model: Balanced data.}
+\label{fig:shap_xgboost_bal}
+\end{minipage}
+\end{figure}
+}
+
+{
+\begin{figure}[H]
+\centering
+\begin{minipage}{1\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Report/Appendices/shap_xgboost_max_ev.png}
+\caption{SHAP summary plot for the XGBoost model: Maximum Expected Value.}
+\label{fig:shap_xgboost_max_ev}
+\end{minipage}
+\end{figure}
+}

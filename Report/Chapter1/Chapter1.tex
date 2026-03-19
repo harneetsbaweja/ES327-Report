@@ -2,11 +2,79 @@
 
 \section{Introduction}
 \label{sec:Introduction} 
-Questions for Eduardo:
-\textcolor{red}{
-1. Where does mermaid flowchart belong?
-2. What specific things would he like to see in the report?
-3. How does he feel about the results section length, how things are presented?
-4. How do you want the code? I have github.
-}
+The ability to characterise financial market conditions as favourable or unfavourable for a given exposure is a well-sought-after problem in quantitative finance, and one that has resisted reliable solution in highly volatile, non-stationary markets. This project applies supervised machine learning to classify daily Bitcoin market observations according to the outcome of a volatility-scaled triple-barrier labelling scheme, distinguishing favourable risk/reward conditions from adverse ones over a 7-day forward horizon. The following chapter establishes the motivation for this research question, defines the problem scope, and states the aims and objectives against which the project's outcomes are evaluated in Chapter \ref{sec:Conclusion}.
+\subsection{Background and Motivation}
+Bitcoin occupies a structurally anomalous position in modern financial markets. Unlike traditional equity assets, it operates without a central issuing authority, trades continuously across global exchanges, and exhibits statistical properties that render classical forecasting methods systematically inadequate. Da Cunha and Da Silva (2020) characterise Bitcoin's return distribution through four empirically confirmed stylised facts \cite{dacunhaRelevantStylizedFacts2020}: fat tails, aggregational Gaussianity, fluctuation scaling, and volatility clustering -- the same properties Cont (2001) \cite{EmpiricalPropertiesAsset2001} identified as universal across mature financial markets, yet amplified in Bitcoin to a degree that invalidates the stationarity assumptions underpinning ARIMA and standard regression frameworks \cite{dacunhaRelevantStylizedFacts2020}.\\
+The inspirational framework for this study derives from Taleb's (2012) convexity/concavity distinction \cite{taleb2012understanding}, formalised mathematically in Taleb and West (2022) \cite{talebWorkingConvexResponses2023}. A convex exposure is one where the payoff function is nonlinearly asymmetric in favour of the holder -- gains exceed losses across a range of outcomes, and volatility is beneficial rather than destructive. A concave exposure is the inverse: losses dominate gains, and uncertainty compounds harm. Taleb (2012) defines fragility precisely as locally concave behaviour in the tails of the return distribution, and antifragility as its opposite \cite{taleb2012understanding}. Applied to Bitcoin market regimes, this framework yields a classification objective: identify whether the current market state represents a convex opportunity (limited downside, substantial upside -- label +1) or a concave risk (substantial downside, limited upside -- label -1). The triple-barrier labelling method of López de Prado (2018) provides the mechanism to operationalise this framework empirically: by conditioning labels on which price barrier -- profit-taking, stop-loss, or time expiry -- is touched first, it encodes the asymmetric payoff structure of convexity directly into the training signal, rather than approximating it through fixed-horizon returns \cite{lopezdepradoAdvancesFinancialMachine2018}.
+\subsection{Problem Statement}
+Bitcoin's extreme volatility and non-stationary return distribution make it structurally ill-suited to classical forecasting approaches that assume linear, stationary relationships between inputs and outputs. Existing ML approaches to Bitcoin price prediction predominantly frame the problem as binary direction classification, up or down, which treats all positive returns as equivalent regardless of their magnitude relative to the associated downside risk. This framing discards the asymmetric payoff information that is most relevant to an economically viable strategy. The problem addressed in this project is, therefore: can a combination of technical and on-chain indicators, processed through a supervised machine learning pipeline with volatility-scaled triple-barrier labels, reliably identify Bitcoin market conditions in which the expected outcome of a 7-day holding period is asymmetrically favourable (upper barrier hit) versus asymmetrically adverse (lower barrier hit)?
 
+\subsection{Aim and Objectives}
+The aim of this project is to develop and evaluate a supervised machine learning pipeline capable of classifying Bitcoin market conditions by their risk/reward asymmetry, using a volatility-scaled triple-barrier labelling scheme applied to a combined dataset of technical and on-chain indicators.\\
+A secondary aim is to establish a reproducible, methodologically rigorous pipeline -- from raw data acquisition through to model evaluation -- that addresses known failure modes in financial ML, including data leakage, overlapping labels, and class imbalance.\\
+The specific objectives, prioritised using the MoSCoW framework \cite{projectmanagementinstituteBusinessAnalysisPractitioners2024} consistent with the Project Feasibility Study, are given in Table \ref{moscow}.
+{
+\setlength{\LTleft}{-5pt}
+\setlength{\LTright}{\fill}
+\setlength{\LTpre}{3pt}
+\setlength{\LTpost}{--5pt}
+\renewcommand{\arraystretch}{0.85}
+\hyphenpenalty=50
+\begin{longtable}{|
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.07\textwidth} |
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.02\textwidth} |
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.53\textwidth} |
+    >{\raggedright\arraybackslash\leftskip=-4.5pt}p{0.3\textwidth}|}
+\caption{Project objectives prioritised using the MoSCoW framework.\label{tab:moscow}} \\
+\hline
+\textbf{Priority} &
+\textbf{\#} &
+\textbf{Objective} &
+\textbf{Deliverable} \\
+\hline
+\endfirsthead
+
+\hline \multicolumn{4}{r}{Continued on next page} \\
+\endfoot
+\hline
+\endlastfoot
+
+Must & O1 &
+Acquire and preprocess a longitudinal Bitcoin dataset combining OHLCV price data and CoinMetrics on-chain metrics spanning 2014--2025. &
+Consolidated feature matrix (\texttt{labelled\_df.csv}) \\ \hline
+
+Must & O2 &
+Design and implement a triple-barrier labelling scheme with EWMA volatility scaling to produce asymmetric risk labels ($+1$, $0$, $-1$) without circular dependency on model features. &
+Labelled dataset with Optuna-optimised barrier parameters \\ \hline
+
+Must & O3 &
+Train and evaluate four supervised classifiers (Logistic Regression, SVC, Random Forest, XGBoost) using time-series-aware cross-validation with class imbalance mitigation. &
+Trained models, classification metrics table \\ \hline
+
+Must & O4 &
+Assess model performance using both ML classification metrics (F1 Macro, MCC) and trading-specific metrics (Sharpe ratio, Expected Value, Profit Factor) to evaluate practical signal quality. &
+\texttt{trade\_metrics.csv}, \texttt{prediction\_eval.csv} \\ \hline
+
+Should & O5 &
+Apply Boruta feature selection to identify statistically relevant predictors from a 69-feature candidate set without requiring \textit{a priori} domain knowledge. &
+Confirmed feature set, importance history plots \\ \hline
+
+Should & O6 &
+Optimise hyperparameters for all four classifiers using Bayesian search (Optuna) with time-series-aware cross-validation. &
+Per-model hyperparameter tables, MLflow experiment logs \\ \hline
+
+Could & O7 &
+Integrate on-chain cycle indicators (MVRV Z-Score, NUPL, SOPR, Puell Multiple) as additional features beyond technical indicators. &
+Extended feature matrix, comparative performance analysis \\ \hline
+
+Could & O8 &
+Implement Purged K-Fold cross-validation to fully address overlapping label concurrency as described by \cite{lopezdepradoAdvancesFinancialMachine2018} &
+Revised CV results, comparison against \texttt{TimeSeriesSplit} baseline \\ \hline
+
+Won't & O9 &
+Deploy the pipeline as a live trading system or connect to a brokerage API. &
+Out of scope -- research outputs only \\ \hline
+
+\end{longtable}
+\renewcommand{\arraystretch}{1.0}
+}
